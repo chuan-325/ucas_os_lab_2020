@@ -28,39 +28,105 @@ static struct
 static void create_image(int nfiles, char *files[]);
 static void error(char *fmt, ...);
 static void read_ehdr(Elf64_Ehdr *ehdr, FILE *fp);
-static void read_phdr(Elf64_Phdr *phdr, FILE *fp, int ph,
-                      Elf64_Ehdr ehdr);
-static void write_segment(Elf64_Ehdr ehdr, Elf64_Phdr phdr, FILE *fp,
-                          FILE *img, int *nbytes, int *first);
+static void read_phdr(Elf64_Phdr *phdr, FILE *fp, int ph, Elf64_Ehdr *ehdr);
+static void write_segment(Elf64_Phdr *phdr, FILE *fp, FILE *img); // delete "Elf64_Ehdr *ehdr, ..., int *nbytes, int *first"
 static void write_os_size(int nbytes, FILE *img);
-static void write_user_thread_segment(Elf64_Ehdr ehdr, Elf64_Phdr phdr, FILE *fp,
-                                      FILE *img, int *nbytes, int *first);
-int main(int argc, char **argv)
+static void write_user_thread_segment(Elf64_Ehdr ehdr, Elf64_Phdr phdr, FILE *fp, FILE *img, int *nbytes, int *first);
+
+int main(int argc, char *argv[])
 {
     // argc = cnt, *argv[] = input arguments
-    create_image(argc - 1, **argv);
+    options.extended = 0;
+    options.vm = 0;
+    int cnt = 0;
+    argv++;
+    for (int j = 1; j < argc; j++)
+    {
+        if ((*argv)[0] == '-' && (*argv)[1] == '-') // right fmt options
+        {
+            // test option
+            if ((*argv)[2] == 'e')
+                options.extended = 1;
+            else if ((*argv)[2] == 'v')
+                options.vm = 1;
+            else
+            {
+                printf("Error: no such Arg!\n");
+                exit(1);
+            }
+            argv++;
+            continue;
+        }
+        else if ((*argv)[0] == '-' || (*argv)[1] == '-') // wrong fmt options
+        {
+            printf("Error: wrong format for args! Example: %s\n", ARGS);
+            exit(1);
+        }
+        // files
+        cnt++;
+    }
+    create_image(cnt, argv);
     return 0;
 }
 
 static void create_image(int nfiles, char *files[])
 {
-    ;
+    FILE *image = fopen(IMAGE_FILE, "w+");
+    if (!image)
+    {
+        printf("Error: no such file to open!\n");
+        exit(1);
+    }
+    for (int i = 0; i < nfiles; i++)
+    {
+        // fopen
+        FILE *fp = fopen(files[i], "r+");
+        if (!fp)
+        {
+            printf("Error: no such file to open!\n");
+            exit(1);
+        }
+        // read
+        Elf64_Ehdr *b_ehdr = (Elf64_Ehdr *)malloc(sizeof(Elf64_Ehdr)); // buffer_ehdr
+        read_ehdr(b_ehdr, fp);
+        Elf64_Phdr *b_phdr = (Elf64_Phdr *)malloc(sizeof(Elf64_Phdr)); // buffer_phdr
+        read_phdr(b_phdr, fp, 0, b_ehdr);
+        // write
+        write_segment(b_phdr, fp, image);
+        free(b_ehdr);
+        free(b_phdr);
+        fclose(fp);
+    }
+    fclose(image);
 }
 
+// READ
+// read *ehdr from *fp
 static void read_ehdr(Elf64_Ehdr *ehdr, FILE *fp)
 {
+    fread(ehdr, sizeof(Elf64_Ehdr), 1, fp);
 }
-
-static void read_phdr(Elf64_Phdr *phdr, FILE *fp, int ph,
-                      Elf64_Ehdr ehdr)
+// read *phdr from *fp
+static void read_phdr(Elf64_Phdr *phdr, FILE *fp, int ph, Elf64_Ehdr *ehdr)
 {
+    fseek(fp, (ehdr->e_phoff) * (sizeof(char)), SEEK_SET);
+    fread(phdr, sizeof(Elf64_Phdr), 1, fp);
 }
 
-static void write_segment(Elf64_Ehdr ehdr, Elf64_Phdr phdr, FILE *fp,
-                          FILE *img, int *nbytes, int *first)
+// WRITE
+// write program segemeny to the file *img
+static void write_segment(Elf64_Phdr *phdr, FILE *fp, FILE *img)
 {
+    int flpsz = (phdr->p_memsz - 1) / SECTOR_SIZE + 1;
+    flpsz *= SECTOR_SIZE;
+    char *buffer = (char *)malloc(flpsz * (sizeof(char)));
+    memset(buffer, 0, flpsz);
+    fseek(fp, (phdr->p_offset) * (sizeof(char)), SEEK_SET);
+    fread(buffer, sizeof(char), phdr->p_filesz, fp);
+    fwrite(buffer, sizeof(char), flpsz, img);
 }
 
+// write nbytes of OS to the file *img
 static void write_os_size(int nbytes, FILE *img)
 {
 }
