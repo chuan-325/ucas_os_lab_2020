@@ -10,7 +10,7 @@
 #define ARGS "[--extended] [--vm] <bootblock> <executable-file> ..."
 
 #define SECTOR_SIZE 512
-#define OS_SIZE_LOC 2
+#define OS_SIZE_LOC 496
 #define BOOT_LOADER_SIG_OFFSET 0x1fe
 #define BOOT_LOADER_SIG_1 0x55
 #define BOOT_LOADER_SIG_2 0xaa
@@ -24,13 +24,15 @@ static struct
     int extended;
 } options;
 
+static short KN_flpsz; // sector number of os-kernel
+
 /* prototypes of local functions */
 static void create_image(int nfiles, char *files[]);
 static void error(char *fmt, ...);
 static void read_ehdr(Elf64_Ehdr *ehdr, FILE *fp);
 static void read_phdr(Elf64_Phdr *phdr, FILE *fp, int ph, Elf64_Ehdr *ehdr);
 static void write_segment(Elf64_Phdr *phdr, FILE *fp, FILE *img); // delete "Elf64_Ehdr *ehdr, ..., int *nbytes, int *first"
-static void write_os_size(int nbytes, FILE *img);
+static void write_os_size(FILE *img);
 static void write_user_thread_segment(Elf64_Ehdr ehdr, Elf64_Phdr phdr, FILE *fp, FILE *img, int *nbytes, int *first);
 
 int main(int argc, char *argv[])
@@ -91,6 +93,9 @@ static void create_image(int nfiles, char *files[])
         read_ehdr(b_ehdr, fp);
         Elf64_Phdr *b_phdr = (Elf64_Phdr *)malloc(sizeof(Elf64_Phdr)); // buffer_phdr
         read_phdr(b_phdr, fp, 0, b_ehdr);
+        // [-extended]
+        if (options.extended)
+            printf("0x%x: %s\n\t\toffset:0x%x\tvaddr:0x%x\n\t\tfilesz:0x%x\tmemsz:0x%x\n", (unsigned int)b_phdr->p_vaddr, files[i], (unsigned int)b_phdr->p_offset, (unsigned int)b_phdr->p_vaddr, (unsigned int)b_phdr->p_filesz, (unsigned int)b_phdr->p_memsz);
         // write
         write_segment(b_phdr, fp, image);
         free(b_ehdr);
@@ -127,8 +132,10 @@ static void write_segment(Elf64_Phdr *phdr, FILE *fp, FILE *img)
 }
 
 // write nbytes of OS to the file *img
-static void write_os_size(int nbytes, FILE *img)
+static void write_os_size(FILE *img)
 {
+    fseek(img, OS_SIZE_LOC, SEEK_SET);
+    fwrite(&KN_flpsz, sizeof(char), 2, img);
 }
 
 /* print an error message and exit */

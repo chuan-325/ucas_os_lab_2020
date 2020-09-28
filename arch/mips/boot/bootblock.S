@@ -2,13 +2,13 @@
 .global main
 
 main:
-	                            # 1) call BIOS print string "It's bootloader!"
+    # 1) call BIOS print string "It's bootloader!"
 	la $a0, msg                 # Ad(msg) -> $a0
     ld $t0, printstr            # "printstr" -> $0
     jal $t0                     # jmp to "printstr"
 
-	                            # 2) call BIOS read kernel in SD card
-                                # a0, a1, a2 are 3 parameters prepared for read_sd_card()
+	# 2) call BIOS read kernel in SD card
+    # a0, a1, a2 are 3 parameters prepared for read_sd_card()
     ld $a0, kernel              # dest: Ad(kernel) -> $a0
     li $a1, 512                 # uint32_t offset -> $a1
     li $a2, 512                 # uint32_t size -> $a2
