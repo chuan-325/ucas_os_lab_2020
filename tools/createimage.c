@@ -24,7 +24,7 @@ static struct
     int extended;
 } options;
 
-static short KN_flpsz; // sector number of os-kernel
+static int KN_flpsz; // byte number of os-kernel
 
 /* prototypes of local functions */
 static void create_image(int nfiles, char *files[]);
@@ -93,11 +93,13 @@ static void create_image(int nfiles, char *files[])
         read_ehdr(b_ehdr, fp);
         Elf64_Phdr *b_phdr = (Elf64_Phdr *)malloc(sizeof(Elf64_Phdr)); // buffer_phdr
         read_phdr(b_phdr, fp, 0, b_ehdr);
+        printf("off %x,vaddr %x,memsz %x,filesz %lx\n", b_phdr->p_offset, b_phdr->p_vaddr, b_phdr->p_memsz, b_phdr->p_filesz);
         // [-extended]
         if (options.extended)
             printf("0x%x: %s\n\t\toffset:0x%x\tvaddr:0x%x\n\t\tfilesz:0x%x\tmemsz:0x%x\n", (unsigned int)b_phdr->p_vaddr, files[i], (unsigned int)b_phdr->p_offset, (unsigned int)b_phdr->p_vaddr, (unsigned int)b_phdr->p_filesz, (unsigned int)b_phdr->p_memsz);
         // write
         write_segment(b_phdr, fp, image);
+        write_os_size(image);
         free(b_ehdr);
         free(b_phdr);
         fclose(fp);
@@ -124,6 +126,8 @@ static void write_segment(Elf64_Phdr *phdr, FILE *fp, FILE *img)
 {
     int flpsz = (phdr->p_memsz - 1) / SECTOR_SIZE + 1;
     flpsz *= SECTOR_SIZE;
+    KN_flpsz = flpsz;
+    printf("KN_flpsz=%d\n", KN_flpsz);
     char *buffer = (char *)malloc(flpsz * (sizeof(char)));
     memset(buffer, 0, flpsz);
     fseek(fp, (phdr->p_offset) * (sizeof(char)), SEEK_SET);
@@ -134,13 +138,7 @@ static void write_segment(Elf64_Phdr *phdr, FILE *fp, FILE *img)
 // write nbytes of OS to the file *img
 static void write_os_size(FILE *img)
 {
+    printf("KN_flpsz=%d\n", KN_flpsz);
     fseek(img, OS_SIZE_LOC, SEEK_SET);
-    fwrite(&KN_flpsz, sizeof(char), 2, img);
-}
-
-/* print an error message and exit */
-static void error(char *fmt, ...)
-{
-    printf("Error!!!\n");
-    exit(1);
+    fwrite(&KN_flpsz, sizeof(int), 1, img);
 }
