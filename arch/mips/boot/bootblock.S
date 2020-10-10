@@ -2,29 +2,35 @@
 .global main
 
 main:
-    # 1) call BIOS print string "It's bootloader!"
+# 1) call BIOS print string "It's bootloader!"
 	dla $a0, msg                 # Ad(msg) -> $a0
     ld $t0, printstr            # "printstr" -> $0
-    jalr $t0                     # jmp to "printstr"
-    nop
-    # 2) call BIOS read kernel in SD card
+    jal $t0                     # jmp to "printstr"
+
+# 2) call BIOS read kernel in SD card
                                 # a0, a1, a2 are 3 parameters prepared for read_sd_card()
     ld $a0, kernel              # dest: Ad(kernel) -> $a0
     li $a1, 512                 # uint32_t offset -> $a1
+
+    # 1-1 sz bg
+    # li $a2, 512
+    # 1-1 sz ed
+
+    # 1-2 sz bg
     dli $a2, 0xffffffffa08001f0  # OS_size loc (optimize)
-    lw $a2, ($a2)               # m(loc) -> $a2                     # address in reg is wrong!!!002867bdffd00000
+    lw $a2, ($a2)               # m(loc) -> $a2 # address in reg is wrong!!!002867bdffd00000
     dsll $a2, $a2, 9
+    # 1-2 sz ed
+
     ld $t0, read_sd_card        # "read_sd_card" -> $t0
-    jalr $t0                     # jmp to "read_sd_card"
+    jal $t0                     # jmp to "read_sd_card"
                                 # jal, link to $31, after the func it will execute the next 'jal'
-    nop
 
-	# 3) jump to kernel
+# 3) jump to kernel
     ld $t0, kernel              # Ad(kernel) -> $t0 (Note: GPRs is changed after read_sd_card)
-    jalr $t0                     # jmp to kernel
-    nop
+    jal $t0                     # jmp to kernel
 
-    # 4) while(1) --> stop here
+# 4) while(1) --> stop here
     loop: j loop
 
 .data
