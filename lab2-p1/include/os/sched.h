@@ -34,10 +34,28 @@
 
 #define NUM_MAX_TASK 32
 #define CORE_NUM 2
+
+#define ADDR_KNSTACK_BASE 0xffffffffa0f00000
+#define ADDR_USSTACK_BASE 0xffffffffa0f20000
+#define NUM_KERNEL_STACK 20
+#define SIZE_KERNEL_STACK 0x1000
+#define SIZE_USER_STACK 0x1000
+
 /* used to save register infomation */
 typedef struct regs_context
 {
+    // GPRs
+    uint64_t regs[32]; // 32 * 8B = 256B
 
+    // Special Registers
+    uint64_t //  7 * 8B =  56B
+        cp0_status,
+        cp0_cause,
+        cp0_count,
+        cp0_compare,
+        cp0_epc;
+    uint64_t hi, lo;
+    uint64_t pc;
 } regs_context_t; /* 256 + 56 = 312B */
 
 typedef enum
@@ -60,9 +78,19 @@ typedef enum
 typedef struct pcb
 {
     /* register context */
+    regs_context_t
+        kernel_context,
+        user_context;
+
+    uint64_t
+        kernel_stack_top,
+        user_stack_top;
 
     /* previous, next pointer */
-    struct pcb *prev, *next;
+    void // [note]void: set for queue api
+        *prev,
+        *next;
+
     /* task in which queue */
 
     /*
@@ -76,16 +104,24 @@ typedef struct pcb
 
     /* priority */
     uint32_t prior;
+
+    // task infomation:
+
     // name
 
     /* process id */
+    pid_t pid;
 
     /* task type: kernel/user thread/process */
-    task_type_t tsk_tp;
-    /* task status: BLOCK | READY | RUNNING */
-    task_status_t tsk_sts;
-    /* cursor position */
+    task_type_t type;
 
+    /* task status: BLOCK | READY | RUNNING | EXIT */
+    task_status_t status;
+
+    /* cursor position */
+    int
+        cursor_x,
+        cursor_y;
 } pcb_t;
 
 /* task information, used to init PCB */
@@ -128,4 +164,5 @@ void set_pcb(pid_t, pcb_t *, task_info_t *);
 void do_process_show();
 pid_t do_getpid();
 uint64_t get_cpu_id();
+
 #endif

@@ -40,8 +40,33 @@
 static void init_memory()
 {
 }
+
 static void init_pcb()
 {
+    process_id = 0;
+    // Init: available
+    int i;
+    for (i = 1; i < NUM_MAX_TASK; i++)
+    {
+        pcb[i].status = TASK_EXITED;
+    }
+    // Clear Queues
+    queue_init(&ready_queue);
+    queue_init(&block_queue);
+    // pcb[0]
+    pcb[0].kernel_stack_top = ADDR_KNSTACK_BASE;
+    pcb[0].prev = NULL;
+    pcb[0].next = &pcb[1]; // when init, the next must be 1
+    pcb[0].pid = 0;
+    current_running = &pcb[0];
+    // Load Tasks
+    // sched1_tasks in test.c
+    for (i = 0; i < 3; i++)
+    {
+        int index = alloc_pcb();
+        set_pcb(++process_id, &pcb[index], sched1_tasks[i]);
+        queue_push(&ready_queue, &pcb[index]);
+    }
 }
 
 static void init_exception_handler()
@@ -67,7 +92,7 @@ static void init_syscall(void)
 {
 }
 
-/* [0] The beginning of everything >_< */
+/* [0] The beginning of everything */
 void __attribute__((section(".entry_function"))) _start(void)
 {
 
@@ -75,7 +100,7 @@ void __attribute__((section(".entry_function"))) _start(void)
 
     /* init stack space */
     init_stack();
-    printk("> [INIT] Stack heap initialization succeeded.\n");
+    printk("> [INIT] Stack initialization succeeded.\n");
 
     /* init interrupt */
     init_exception();
@@ -83,14 +108,12 @@ void __attribute__((section(".entry_function"))) _start(void)
 
     init_memory();
     printk("> [INIT] Virtual memory initialization succeeded.\n");
-    // init system call table (0_0)
-    /* init system call table */
 
+    /* init system call table */
     init_syscall();
     printk("> [INIT] System call initialized successfully.\n");
 
     /* init Process Control Block */
-
     init_pcb();
     printk("> [INIT] PCB initialization succeeded.\n");
 
@@ -99,10 +122,10 @@ void __attribute__((section(".entry_function"))) _start(void)
     printk("> [INIT] SCREEN initialization succeeded.\n");
 
     /* init filesystem */
-    read_super_block();
+    //?read_super_block();
 
     /* wake up core1*/
-    loongson3_boot_secondary();
+    //?loongson3_boot_secondary();
 
     /* set cp0_status register to allow interrupt */
     // enable exception and interrupt
