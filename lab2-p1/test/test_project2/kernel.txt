@@ -96,7 +96,7 @@ ffffffffa0800350:	001ad438 	dsll	k0,k0,0x10
 ffffffffa0800354:	675aa080 	daddiu	k0,k0,-24448
 ffffffffa0800358:	001ad438 	dsll	k0,k0,0x10
 ffffffffa080035c:	df5a6768 	ld	k0,26472(k0)
-ffffffffa0800360:	635a0138 	daddi	k0,k0,312
+ffffffffa0800360:	635a0140 	daddi	k0,k0,320
 ffffffffa0800364:	ff400000 	sd	zero,0(k0)
 ffffffffa0800368:	ff420010 	sd	v0,16(k0)
 ffffffffa080036c:	ff430018 	sd	v1,24(k0)
@@ -134,7 +134,7 @@ ffffffffa08003e8:	001ad438 	dsll	k0,k0,0x10
 ffffffffa08003ec:	675aa080 	daddiu	k0,k0,-24448
 ffffffffa08003f0:	001ad438 	dsll	k0,k0,0x10
 ffffffffa08003f4:	df5a6768 	ld	k0,26472(k0)
-ffffffffa08003f8:	635a0138 	daddi	k0,k0,312
+ffffffffa08003f8:	635a0140 	daddi	k0,k0,320
 ffffffffa08003fc:	df400000 	ld	zero,0(k0)
 ffffffffa0800400:	df420010 	ld	v0,16(k0)
 ffffffffa0800404:	df430018 	ld	v1,24(k0)
