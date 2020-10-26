@@ -2,8 +2,8 @@
 #include "asm.h"
 
 .equ    KERNEL, 0
-.equ    USER,   312
-.equ    NESTED_COUNT, 624
+.equ    USER,   320
+.equ    NESTED_COUNT, 640
 
 
 LEAF(asm_start)

@@ -11,3 +11,10 @@ Listed tasks except kernel relocation are done.
 ### lab2
 
 #### p1
+
+Code finished. (2020-10-26)
+
+Design doc unfinished. (2020-10-26)
+
+#### p2
+

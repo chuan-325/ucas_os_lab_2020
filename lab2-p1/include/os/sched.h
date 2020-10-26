@@ -48,7 +48,7 @@ typedef struct regs_context
     uint64_t regs[32]; // 32 * 8B = 256B
 
     // Special Registers
-    uint64_t //  7 * 8B =  56B
+    uint64_t //  8 * 8B =  64B
         cp0_status,
         cp0_cause,
         cp0_count,
@@ -56,7 +56,7 @@ typedef struct regs_context
         cp0_epc;
     uint64_t hi, lo;
     uint64_t pc;
-} regs_context_t; /* 256 + 56 = 312B */
+} regs_context_t; /* 256 + 64 = 320B */
 
 typedef enum
 {
@@ -99,7 +99,7 @@ typedef struct pcb
      */
 
     /* holding lock */
-
+    queue_t lock_queue;
     /* block related */
 
     /* priority */

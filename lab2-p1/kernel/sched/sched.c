@@ -62,6 +62,7 @@ int alloc_pcb()
             pcb[i].kernel_stack_top = new_kernel_stack(i);
             pcb[i].user_stack_top = new_user_stack(i);
             pcb[i].status = TASK_READY;
+            queue_init(&(pcb[i].lock_queue));
             return i;
         }
     }
@@ -112,16 +113,34 @@ void do_exit(void)
 {
 }
 
+// block current_running to '*queue'
 void do_block(queue_t *queue)
 {
+    pcb_t *be_block;
+    be_block = current_running;
+    queue_remove(&ready_queue, (void *)be_block);
+    queue_push(queue, (void *)be_block);
+    do_scheduler();
+    // after this we turn to the head of ready_queue
 }
 
+// unblock head of '*queue'
 void do_unblock_one(queue_t *queue)
 {
+    void *be_unblock;
+    if (queue_is_empty(queue))
+        printk("queue is empty!");
+    be_unblock = queue_dequeue(queue);
+    queue_push(&ready_queue, be_unblock);
 }
 
+// unblock all items in '*queue'
 void do_unblock_all(queue_t *queue)
 {
+    while (!queue_is_empty(queue))
+    {
+        do_unblock_one(queue);
+    }
 }
 
 int do_spawn(task_info_t *task)

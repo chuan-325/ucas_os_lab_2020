@@ -40,6 +40,7 @@ void queue_push(queue_t *queue, void *item)
     }
 }
 
+/* remove head of queue */
 void *queue_dequeue(queue_t *queue)
 {
     item_t *temp = (item_t *)queue->head;
@@ -63,7 +64,7 @@ void *queue_dequeue(queue_t *queue)
     return (void *)temp;
 }
 
-/* remove this item and return next item */
+/* remove [SELECTED] item and return next item */
 void *queue_remove(queue_t *queue, void *item)
 {
     item_t *_item = (item_t *)item;
