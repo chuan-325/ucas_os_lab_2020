@@ -61,10 +61,16 @@ static void init_pcb()
     current_running = &pcb[0];
     // Load Tasks
     // sched1_tasks in test.c
-    for (i = 0; i < 2; i++)
+    for (i = 0; i < 3; i++)
     {
         int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], lock_tasks[i]);
+        set_pcb(++process_id, &pcb[index], sched1_tasks[i]);
+        queue_push(&ready_queue, &pcb[index]);
+    }
+    for (; i < 5; i++)
+    {
+        int index = alloc_pcb();
+        set_pcb(++process_id, &pcb[index], lock_tasks[i - 3]);
         queue_push(&ready_queue, &pcb[index]);
     }
 }

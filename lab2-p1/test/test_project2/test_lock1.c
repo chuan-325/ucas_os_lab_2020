@@ -16,7 +16,7 @@ mutex_lock_t mutex_lock;
 
 void lock_task1(void)
 {
-    int print_location = 1;
+    int print_location = 5;
     while (1)
     {
         int i;
@@ -49,7 +49,7 @@ void lock_task1(void)
         do_mutex_lock_acquire(&mutex_lock);
 #endif
 
-        for (i = 0; i < 20000; i++)
+        for (i = 0; i < 5; i++)
         {
             vt100_move_cursor(1, print_location);
             printk("> [TASK] Has acquired lock and running.(%d)\n", i);
@@ -75,7 +75,7 @@ void lock_task1(void)
 
 void lock_task2(void)
 {
-    int print_location = 2;
+    int print_location = 6;
     while (1)
     {
         int i;
@@ -108,7 +108,7 @@ void lock_task2(void)
         do_mutex_lock_acquire(&mutex_lock);
 #endif
 
-        for (i = 0; i < 20000; i++)
+        for (i = 0; i < 8; i++)
         {
             vt100_move_cursor(1, print_location);
             printk("> [TASK] Has acquired lock and running.(%d)\n", i);
