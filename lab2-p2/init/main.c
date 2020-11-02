@@ -41,36 +41,37 @@ static void init_memory()
 {
 }
 
+// pcb initialization
 static void init_pcb()
 {
-    process_id = 0;
-    // Init: available
+    process_id = 0; // kernel process
+
+    // Init
     int i;
     for (i = 1; i < NUM_MAX_TASK; i++)
     {
-        pcb[i].status = TASK_EXITED;
+        pcb[i].status = TASK_EXITED; // all available
     }
     // Clear Queues
     queue_init(&ready_queue);
     queue_init(&block_queue);
-    // pcb[0]
+    // Set pcb[0]
     pcb[0].kernel_stack_top = ADDR_KNSTACK_BASE;
     pcb[0].prev = NULL;
     pcb[0].next = &pcb[1]; // when init, the next must be 1
     pcb[0].pid = 0;
     current_running = &pcb[0];
     // Load Tasks
-    // sched1_tasks in test.c
     for (i = 0; i < 3; i++)
     {
         int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], sched1_tasks[i]);
+        set_pcb(++process_id, &pcb[index], sched1_tasks[i]); // sched1
         queue_push(&ready_queue, &pcb[index]);
     }
     for (; i < 5; i++)
     {
         int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], lock_tasks[i - 3]);
+        set_pcb(++process_id, &pcb[index], lock_tasks[i - 3]); // lock1
         queue_push(&ready_queue, &pcb[index]);
     }
 }

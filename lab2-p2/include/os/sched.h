@@ -41,7 +41,22 @@
 #define SIZE_KERNEL_STACK 0x1000
 #define SIZE_USER_STACK 0x1000
 
-/* used to save register infomation */
+typedef enum
+{
+    TASK_BLOCKED, // 0
+    TASK_RUNNING, // 1
+    TASK_READY,   // 2
+    TASK_EXITED,  // 3
+} task_status_t;
+typedef enum
+{
+    KERNEL_PROCESS, // 0
+    KERNEL_THREAD,  // 1
+    USER_PROCESS,   // 2
+    USER_THREAD,    // 3
+} task_type_t;
+
+// REGS_CONTEXT
 typedef struct regs_context
 {
     // GPRs
@@ -58,26 +73,10 @@ typedef struct regs_context
     uint64_t pc;
 } regs_context_t; /* 256 + 64 = 320B */
 
-typedef enum
-{
-    TASK_BLOCKED, // 0
-    TASK_RUNNING, // 1
-    TASK_READY,   // 2
-    TASK_EXITED,  // 3
-} task_status_t;
-
-typedef enum
-{
-    KERNEL_PROCESS, // 0
-    KERNEL_THREAD,  // 1
-    USER_PROCESS,   // 2
-    USER_THREAD,    // 3
-} task_type_t;
-
-/* Process Control Block */
+// PCB
 typedef struct pcb
 {
-    /* register context */
+    // register context
     regs_context_t
         kernel_context,
         user_context;
@@ -86,7 +85,7 @@ typedef struct pcb
         kernel_stack_top,
         user_stack_top;
 
-    /* previous, next pointer */
+    // previous, next pointer
     void // [note]void: set for queue api
         *prev,
         *next;
@@ -98,7 +97,7 @@ typedef struct pcb
      * queue need to be unblocked when I do_exit().
      */
 
-    /* holding lock */
+    // holding lock
     queue_t lock_queue;
     /* block related */
 
@@ -109,22 +108,22 @@ typedef struct pcb
 
     // name
 
-    /* process id */
+    // process id
     pid_t pid;
 
-    /* task type: kernel/user thread/process */
+    // task type: kernel/user thread/process
     task_type_t type;
 
-    /* task status: BLOCK | READY | RUNNING | EXIT */
+    // task status: BLOCK | READY | RUNNING | EXIT
     task_status_t status;
 
-    /* cursor position */
+    // cursor position
     int
         cursor_x,
         cursor_y;
 } pcb_t;
 
-/* task information, used to init PCB */
+// task info: be used to init PCB
 typedef struct task_info
 {
     char name[32];
@@ -132,11 +131,8 @@ typedef struct task_info
     task_type_t type;
 } task_info_t;
 
-/* ready queue to run */
-extern queue_t ready_queue;
-
-/* block queue to wait */
-extern queue_t block_queue;
+extern queue_t ready_queue; // ready queue: to run
+extern queue_t block_queue; // block queue: to wait
 
 /* current running task PCB */
 extern pcb_t *current_running;

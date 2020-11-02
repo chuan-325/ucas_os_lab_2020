@@ -1,7 +1,7 @@
 
 #include "asm.h"
 
-.equ    KERNEL, 0
+.equ    KERNEL, 0         # addr of reg_context
 .equ    USER,   320
 .equ    NESTED_COUNT, 640
 
@@ -91,7 +91,7 @@ END(asm_start)
    .set    at
 .endm
 
-# function do_scheduler
+# do_scheduler() func
 NESTED(do_scheduler, 0, ra)
     # save context
     SAVE_CONTEXT(USER)
