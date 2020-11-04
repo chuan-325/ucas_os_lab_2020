@@ -32,6 +32,14 @@ int sys_kill(pid_t pid)
 int sys_waitpid(pid_t pid)
 {
 }
+void sys_get_timer()
+{
+    get_timer();
+}
+void sys_do_scheduler()
+{
+    do_scheduler();
+}
 
 void sys_write(char *buff)
 {

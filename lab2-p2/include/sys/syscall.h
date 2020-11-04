@@ -4,7 +4,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
  *                       System call related processing
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -21,8 +21,8 @@
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
+ * THE SOFTWARE.
+ *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * */
 
 #ifndef INCLUDE_SYSCALL_H_
@@ -43,6 +43,8 @@
 #define SYSCALL_WAITPID 4
 #define SYSCALL_PS 5
 #define SYSCALL_GETPID 6
+#define SYSCALL_GET_TIMER 7
+#define SYSCALL_SCHEDULER 8
 
 #define SYSCALL_WRITE 20
 #define SYSCALL_READ 21
@@ -90,8 +92,8 @@
 /* syscall function pointer */
 uint64_t (*syscall[NUM_SYSCALLS])();
 
-void system_call_helper(uint64_t,uint64_t,uint64_t,uint64_t);
-extern uint64_t invoke_syscall(uint64_t,uint64_t,uint64_t,uint64_t);
+void system_call_helper(uint64_t, uint64_t, uint64_t, uint64_t);
+extern uint64_t invoke_syscall(uint64_t, uint64_t, uint64_t, uint64_t);
 
 void sys_exit(void);
 void sys_sleep(uint32_t);
