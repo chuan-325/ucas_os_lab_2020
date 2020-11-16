@@ -13,14 +13,14 @@ void sleep_task(void)
 
     while (1)
     {
-        for (i = 0; i < 20000; i++)
+        for (i = 0; i < 20; i++)
         {
             sys_move_cursor(1, print_location);
-            printf("> [TASK] This task is to test sleep(). (%d)\n", i);
+            printf("> [TASK] This task is to test sleep(). (%d)                  \n", i);
         }
 
         sys_move_cursor(1, print_location);
-        printf("> [TASK] This task is sleeping, sleep time is %d.\n", sleep_time);
+        printf("> [TASK] This task is sleeping, sleep time is %d.                  \n", sleep_time);
 
         /* call syscall sleep() */
         sys_sleep(sleep_time);

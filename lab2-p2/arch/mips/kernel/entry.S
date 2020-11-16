@@ -178,12 +178,12 @@ exception_handler_begin:
     mfc0    t1, CP0_CAUSE         # get excode
     ld      k0, current_running
     daddi   k0, k0, KERNEL        # select on USER/KERNEL context
-    sd      a0, 32(k0) # a0~a3 parameters
+    sd      a0, 32(k0)            # a0~a3 parameters
     sd      a1, 40(k0)
     sd      a2, 48(k0)
     sd      a3, 56(k0)
-    sw      t0, 256(k0) #status
-    sw      t1, 264(k0) #cause
+    sw      t0, 256(k0)           # status
+    sw      t1, 264(k0)           # cause
     RESTORE_CONTEXT(KERNEL)
     mfc0    k1, CP0_CAUSE
     andi    k1, k1, CAUSE_EXCCODE

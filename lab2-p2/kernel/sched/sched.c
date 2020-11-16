@@ -13,6 +13,8 @@ pcb_t pcb[NUM_MAX_TASK];
 pcb_t *current_running;
 // global process id
 pid_t process_id = 1;
+// global.prior
+uint32_t global_prior = PRIOR_MAX;
 // kernel stack
 static uint64_t kernel_stack[NUM_KERNEL_STACK];
 static int kernel_stack_count;
@@ -89,6 +91,10 @@ void set_pcb(pid_t pid, pcb_t *pcb, task_info_t *task_info)
     int i;
     for (i = 0; i < 32; i++)
         pcb->name[i] = task_info->name[i];
+
+    if (pid < NUM_MAX_TASK)
+        pcb->next = (pcb_t *)(&pcb + sizeof(pcb_t));
+
     // ra
     pcb->kernel_context.regs[31] = (uint64_t)exception_handler_exit;
     pcb->user_context.cp0_epc = task_info->entry_point;
@@ -106,21 +112,17 @@ static void check_sleeping()
 {
     pcb_t *be_chk;
     be_chk = (pcb_t *)sleep_queue.head;
-    while (be_chk != NULL && be_chk->next != NULL)
+    while (be_chk != NULL) // && be_chk->next != NULL)
     {
         if (be_chk->wake_up_clk <= time_elapsed)
         {
             pcb_t *be_waked;
             be_waked = be_chk;
-            be_chk = be_chk->next;
             be_waked->status = TASK_READY;
             queue_remove(&sleep_queue, be_waked);
             queue_push(&ready_queue, be_waked);
         }
-        else
-        {
-            be_chk = be_chk->next;
-        }
+        be_chk = be_chk->next;
     }
 }
 
@@ -128,21 +130,49 @@ static void check_sleeping()
 //   switch from current 'current_running' to the next 'current_running'
 void scheduler(void)
 {
+    check_sleeping();
+
     if (current_running->status == TASK_RUNNING)
         current_running->status = TASK_READY; // c_r(old): (running)->READY
 
     current_running->cursor_x = screen_cursor_x;
     current_running->cursor_y = screen_cursor_y;
 
-    // which to switch?
+    // which to switch? sequence sched
+    /*
     if (!current_running->next) // no next: head(ready_queue)
-    {
         current_running = (pcb_t *)(ready_queue.head);
-    }
     else // with next: next
-    {
         current_running = (pcb_t *)(current_running->next);
+    */
+    pcb_t *next_running;
+    next_running = current_running->next; // init nr
+
+    uint32_t nr_valid = 0;
+
+    while (1)
+    {
+        while (next_running)
+        { // check validity of next running
+            if (next_running->prior >= global_prior)
+            {
+                nr_valid = 1;
+                break;
+            }
+            next_running = next_running->next; // see whole queue
+        }
+        if (nr_valid)
+            break;
+
+        if (global_prior == 0) // reset global prior
+            global_prior = PRIOR_MAX;
+        else // update suitable global prior
+            global_prior--;
+
+        next_running = (pcb_t *)(ready_queue.head); // prepare for next query
     }
+
+    current_running = next_running;
 
     screen_cursor_x = current_running->cursor_x;
     screen_cursor_y = current_running->cursor_y;

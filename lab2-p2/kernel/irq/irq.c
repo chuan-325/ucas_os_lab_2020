@@ -15,7 +15,8 @@ static void irq_timer()
 {
     screen_reflush();
 
-    time_elapsed++; // increase global time counter
+    time_elapsed += SEC_SLICE; // increase global time counter
+
     do_scheduler(); // sched.c to do scheduler
     reset_timer();  // reset count
     set_cp0_compare(TIMER_INTERVAL);
@@ -23,7 +24,6 @@ static void irq_timer()
 
 void interrupt_helper(uint32_t status, uint32_t cause)
 {
-    //todo
     int im = (status & 0xff00) >> 8;
     int ip = (cause & 0xff00) >> 8;
     int num = im & ip;

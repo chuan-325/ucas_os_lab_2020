@@ -64,17 +64,22 @@ static void init_pcb()
     pcb[0].pid = 0;
     pcb[0].block_me = NULL;
     current_running = &pcb[0];
-
     for (i = 0; i < 3; i++)
     {
         int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], sched2_tasks[i]); // sched1
+        set_pcb(++process_id, &pcb[index], sched2_tasks[i]);
         queue_push(&ready_queue, &pcb[index]);
     }
     for (i = 0; i < 2; i++)
     {
         int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], lock_tasks[i]); // lock1
+        set_pcb(++process_id, &pcb[index], timer_tasks[i]);
+        queue_push(&ready_queue, &pcb[index]);
+    }
+    for (i = 0; i < 2; i++)
+    {
+        int index = alloc_pcb();
+        set_pcb(++process_id, &pcb[index], lock_tasks[i]);
         queue_push(&ready_queue, &pcb[index]);
     }
 }

@@ -14,6 +14,6 @@ void timer_task(void)
         /* call get_timer() to get time */
         uint32_t time = get_timer();
         sys_move_cursor(1, print_location);
-        printf("> [TASK] This is a thread to timing! (%u/%u seconds).\n", time, time_elapsed);
+        printf("> [TASK] This is a thread to timing! (%u/%u seconds).               \n", time, time_elapsed);
     }
 }

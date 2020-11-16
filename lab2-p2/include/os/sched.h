@@ -41,6 +41,8 @@
 #define SIZE_KERNEL_STACK 0x1000
 #define SIZE_USER_STACK 0x1000
 
+#define PRIOR_MAX 5
+
 #define STATE_KERNEL 0
 #define STATE_USER 1
 

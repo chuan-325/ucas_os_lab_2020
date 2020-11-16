@@ -1,9 +1,9 @@
 #include "test.h"
 
 /* task group to test do_scheduler() */
-struct task_info task2_1 = {"task1", (uint64_t)&printk_task1, USER_PROCESS, 2};
+struct task_info task2_1 = {"task1", (uint64_t)&printk_task1, USER_PROCESS, 1};
 struct task_info task2_2 = {"task1", (uint64_t)&printk_task2, USER_PROCESS, 5};
-struct task_info task2_3 = {"task1", (uint64_t)&drawing_task1, USER_PROCESS, 1};
+struct task_info task2_3 = {"task1", (uint64_t)&drawing_task1, USER_PROCESS, 2};
 struct task_info *sched1_tasks[16] = {&task2_1, &task2_2, &task2_3};
 int num_sched1_tasks = 3;
 
@@ -20,7 +20,7 @@ struct task_info *timer_tasks[16] = {&task2_6, &task2_7};
 int num_timer_tasks = 2;
 
 /* task group to test clock scheduler */
-struct task_info task2_8 = {"task8", (uint64_t)&printf_task1, USER_PROCESS, 5};
+struct task_info task2_8 = {"task8", (uint64_t)&printf_task1, USER_PROCESS, 1};
 struct task_info task2_9 = {"task9", (uint64_t)&printf_task2, USER_PROCESS, 5};
 struct task_info task2_10 = {"task10", (uint64_t)&drawing_task2, USER_PROCESS, 5};
 struct task_info *sched2_tasks[16] = {&task2_8, &task2_9, &task2_10};

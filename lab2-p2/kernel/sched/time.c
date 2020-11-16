@@ -21,6 +21,7 @@ void latency(uint32_t time)
 
     while (get_timer() - begin_time < time)
     {
-    };
+        ;
+    }
     return;
 }
