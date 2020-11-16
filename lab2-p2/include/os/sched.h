@@ -41,6 +41,11 @@
 #define SIZE_KERNEL_STACK 0x1000
 #define SIZE_USER_STACK 0x1000
 
+#define STATE_KERNEL 0
+#define STATE_USER 1
+
+#define SEC_SLICE 7000
+
 typedef enum
 {
     TASK_BLOCKED, // 0
@@ -81,6 +86,9 @@ typedef struct pcb
         kernel_context,
         user_context;
 
+    // task state: KERNEL_STATE /USER_STATE
+    int state;
+
     uint64_t
         kernel_stack_top,
         user_stack_top;
@@ -99,14 +107,19 @@ typedef struct pcb
 
     // holding lock
     queue_t lock_queue;
-    /* block related */
+    // wait_it
+    queue_t wait_queue;
+    // who block me?
+    void *block_me;
 
-    /* priority */
+    // priority
     uint32_t prior;
 
-    // task infomation:
+    // sleep_time
+    uint32_t wake_up_clk;
 
     // name
+    char name[32];
 
     // process id
     pid_t pid;
@@ -129,10 +142,12 @@ typedef struct task_info
     char name[32];
     uint64_t entry_point;
     task_type_t type;
+    uint32_t prior;
 } task_info_t;
 
-extern queue_t ready_queue; // ready queue: to run
-extern queue_t block_queue; // block queue: to wait
+extern queue_t ready_queue;
+extern queue_t block_queue;
+extern queue_t sleep_queue;
 
 /* current running task PCB */
 extern pcb_t *current_running;

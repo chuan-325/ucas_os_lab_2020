@@ -35,13 +35,14 @@
 #include "smp.h"
 #include "mm.h"
 #include "mac.h"
+#include "time.h"
+#include "string.h"
 
 #define TASK_INIT (00)
 static void init_memory()
 {
 }
 
-// pcb initialization
 static void init_pcb()
 {
     process_id = 0; // kernel process
@@ -49,47 +50,72 @@ static void init_pcb()
     // Init
     int i;
     for (i = 1; i < NUM_MAX_TASK; i++)
-    {
         pcb[i].status = TASK_EXITED; // all available
-    }
-    // Clear Queues
+
     queue_init(&ready_queue);
     queue_init(&block_queue);
-    // Set pcb[0]
-    pcb[0].kernel_stack_top = ADDR_KNSTACK_BASE;
+    queue_init(&sleep_queue);
+
+    pcb[0].kernel_stack_top = pcb[0].kernel_context.regs[29] = ADDR_KNSTACK_BASE; //sp
+
     pcb[0].prev = NULL;
     pcb[0].next = &pcb[1]; // when init, the next must be 1
+
     pcb[0].pid = 0;
+    pcb[0].block_me = NULL;
     current_running = &pcb[0];
-    // Load Tasks
+
     for (i = 0; i < 3; i++)
     {
         int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], sched1_tasks[i]); // sched1
+        set_pcb(++process_id, &pcb[index], sched2_tasks[i]); // sched1
         queue_push(&ready_queue, &pcb[index]);
     }
-    for (; i < 5; i++)
+    for (i = 0; i < 2; i++)
     {
         int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], lock_tasks[i - 3]); // lock1
+        set_pcb(++process_id, &pcb[index], lock_tasks[i]); // lock1
         queue_push(&ready_queue, &pcb[index]);
     }
+}
+
+static void init_binsem()
+{
+    int i;
+    for (i = 0; i < BINSEM_NUM; i++)
+        binsem[i].taken = 0;
 }
 
 static void init_exception_handler()
 {
+    int i;
+    for (i = 0; i < 32; i++)
+        exception_handler[i] = (uint64_t)handle_other;
+
+    exception_handler[INT] = (uint64_t)handle_int;
+    exception_handler[SYS] = (uint64_t)handle_syscall;
+    exception_handler[TLBL] = (uint64_t)handle_tlb;
+    exception_handler[TLBS] = (uint64_t)handle_tlb;
 }
 
 static void init_exception()
 {
-
-    /* fill nop */
-
-    /* fill nop */
-
-    /* set COUNT & set COMPARE */
-
-    /* open interrupt */
+    /*
+     * 1. Copy the level 2 exception handling code to 0xffffffff80000180
+     * 2. Set EXC table
+     * 3. reset CP0 regs
+     */
+    // 1
+    uint8_t *exc_h;
+    exc_h = (uint8_t *)0xffffffff80000180;
+    uint32_t exc_h_size = exception_handler_end - exception_handler_begin;
+    memcpy(exc_h, (uint8_t *)exception_handler_begin, exc_h_size);
+    // 2
+    init_exception_handler();
+    // 3: reset
+    reset_timer();                   // cnt
+    set_cp0_compare(TIMER_INTERVAL); // cmp
+    set_cp0_status(0x10008000);      // status: EXL=0, IE=0
 }
 
 // [2]
@@ -97,6 +123,28 @@ static void init_exception()
 
 static void init_syscall(void)
 {
+    syscall[SYSCALL_SPAWN] = (uint64_t(*)())(&do_spawn);
+    syscall[SYSCALL_EXIT] = (uint64_t(*)())(&do_exit);
+    syscall[SYSCALL_SLEEP] = (uint64_t(*)())(&do_sleep);
+    syscall[SYSCALL_KILL] = (uint64_t(*)())(&do_kill);
+    syscall[SYSCALL_WAITPID] = (uint64_t(*)())(&do_waitpid);
+    syscall[SYSCALL_PS] = (uint64_t(*)())(&do_process_show);
+    syscall[SYSCALL_GETPID] = (uint64_t(*)())(&do_getpid);
+    syscall[SYSCALL_GET_TIMER] = (uint64_t(*)())(&get_timer);
+    syscall[SYSCALL_SCHEDULER] = (uint64_t(*)())(&do_scheduler);
+
+    syscall[SYSCALL_WRITE] = (uint64_t(*)())(&screen_write);
+    //syscall[SYSCALL_READ]
+    syscall[SYSCALL_CURSOR] = (uint64_t(*)())(&screen_move_cursor);
+    syscall[SYSCALL_REFLUSH] = (uint64_t(*)())(&screen_reflush);
+    //syscall[SYSCALL_SERIAL_READ]
+
+    syscall[SYSCALL_MUTEX_LOCK_INIT] = (uint64_t(*)())(&mutex_lock_init);
+    syscall[SYSCALL_MUTEX_LOCK_ACQUIRE] = (uint64_t(*)())(&mutex_lock_acquire);
+    syscall[SYSCALL_MUTEX_LOCK_RELEASE] = (uint64_t(*)())(&mutex_lock_release);
+
+    syscall[SYSCALL_BINSEM_GET] = (uint64_t(*)())(&do_binsemget);
+    syscall[SYSCALL_BINSEM_OP] = (uint64_t(*)())(&do_binsemop);
 }
 
 /* [0] The beginning of everything */
@@ -124,6 +172,10 @@ void __attribute__((section(".entry_function"))) _start(void)
     init_pcb();
     printk("> [INIT] PCB initialization succeeded.\n");
 
+    /* init binsem */
+    init_binsem();
+    printk("> [INIT] Binsem initialization succeeded.\n");
+
     /* init screen */
     init_screen();
     printk("> [INIT] SCREEN initialization succeeded.\n");
@@ -137,10 +189,15 @@ void __attribute__((section(".entry_function"))) _start(void)
     /* set cp0_status register to allow interrupt */
     // enable exception and interrupt
     // ERL = 0, EXL = 0, IE = 1
+    uint32_t status_ival = get_cp0_status();
+    status_ival |= 0x1;
+    reset_timer();    // reset count
+    time_elapsed = 0; // global time reset
+    set_cp0_status(status_ival);
 
     while (1)
     {
-        do_scheduler(); // prj2-1
+        //do_scheduler();
     };
     return;
 }

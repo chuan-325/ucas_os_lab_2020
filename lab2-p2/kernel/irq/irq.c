@@ -15,19 +15,23 @@ static void irq_timer()
 {
     screen_reflush();
 
-    /* increase global time counter */
-
-    /* reset timer register */
-
-    /* sched.c to do scheduler */
+    time_elapsed++; // increase global time counter
+    do_scheduler(); // sched.c to do scheduler
+    reset_timer();  // reset count
+    set_cp0_compare(TIMER_INTERVAL);
 }
 
 void interrupt_helper(uint32_t status, uint32_t cause)
 {
-     
+    //todo
+    int im = (status & 0xff00) >> 8;
+    int ip = (cause & 0xff00) >> 8;
+    int num = im & ip;
+    if (num == 0x80) //clk intr
+        irq_timer();
 }
 
 void other_exception_handler()
 {
-    
+    //todo
 }

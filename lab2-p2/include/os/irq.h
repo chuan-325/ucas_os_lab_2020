@@ -4,7 +4,7 @@
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
  *                                  IRQ
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
- * 
+ *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
  * in the Software without restriction, including without limitation the rights
@@ -21,8 +21,8 @@
  * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
  * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
- * THE SOFTWARE. 
- * 
+ * THE SOFTWARE.
+ *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * */
 
 #ifndef INCLUDE_INTERRUPT_H_
@@ -66,9 +66,10 @@ enum ExcCode
 
 void interrupt_helper(uint32_t, uint32_t);
 
-extern void reset_timer(uint32_t);
+extern void reset_timer(void);
 extern void set_cp0_status(uint32_t);
 extern void set_cp0_cause(uint32_t);
+extern void set_cp0_compare(uint32_t);
 extern uint32_t get_cp0_compare(void);
 extern uint32_t get_cp0_cause(void);
 extern uint32_t get_cp0_status(void);
@@ -77,6 +78,7 @@ extern uint32_t get_cp0_status(void);
 extern void exception_handler_entry(void);
 extern void exception_handler_begin(void);
 extern void exception_handler_end(void);
+extern void exception_handler_exit(void);
 
 extern void handle_int(void);
 extern void handle_syscall(void);

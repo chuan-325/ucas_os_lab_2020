@@ -30,10 +30,14 @@
 
 #include "queue.h"
 
+#define BINSEM_OP_LOCK 0
+#define BINSEM_OP_UNLOCK 1
+#define BINSEM_NUM 64
+
 typedef enum
 {
-    UNLOCKED,
-    LOCKED,
+    UNLOCKED, //0
+    LOCKED,   //1
 } lock_status_t;
 
 typedef struct spin_lock
@@ -48,6 +52,15 @@ typedef struct mutex_lock
     queue_t blocked;
 } mutex_lock_t;
 
+typedef struct binsem
+{
+    int taken,
+        key,
+        sem;
+    queue_t blocked;
+} binsem_t;
+extern binsem_t binsem[BINSEM_NUM];
+
 /* init lock */
 void spin_lock_init(spin_lock_t *lock);
 void spin_lock_acquire(spin_lock_t *lock);
@@ -56,5 +69,8 @@ void spin_lock_release(spin_lock_t *lock);
 void do_mutex_lock_init(mutex_lock_t *lock);
 void do_mutex_lock_acquire(mutex_lock_t *lock);
 void do_mutex_lock_release(mutex_lock_t *lock);
+
+int do_binsemget(int key);
+int do_binsemop(int binsem_id, int op);
 
 #endif

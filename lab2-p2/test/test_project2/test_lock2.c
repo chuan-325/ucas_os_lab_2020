@@ -22,21 +22,21 @@ void lock_task1(void)
         for (i = 0; i < 2000; i++)
         {
             sys_move_cursor(1, print_location);
-            printf("> [TASK] Applying for a lock %d.\n", i);
+            printf("> [TASK1] Applying for a lock %d.           \n", i);
         }
         binsemop(lock_id, BINSEM_OP_LOCK);
 
         for (i = 0; i < 20000; i++)
         {
             sys_move_cursor(1, print_location);
-            printf("> [TASK] Has acquired lock and running.(%d)\n", i);
+            printf("> [TASK1] Has acquired lock and running.(%d)           \n", i);
         }
 
         sys_move_cursor(1, print_location);
         printf("%s", blank);
 
         sys_move_cursor(1, print_location);
-        printf("> [TASK] Has acquired lock and exited.\n");
+        printf("> [TASK1] Has acquired lock and exited.           \n");
 
         binsemop(lock_id, BINSEM_OP_UNLOCK);
     }
@@ -56,7 +56,7 @@ void lock_task2(void)
         for (i = 0; i < 2000; i++)
         {
             sys_move_cursor(1, print_location);
-            printf("> [TASK] Applying for a lock. %d\n", i);
+            printf("> [TASK2] Applying for a lock. %d           \n", i);
         }
 
         binsemop(lock_id, BINSEM_OP_LOCK);
@@ -64,14 +64,14 @@ void lock_task2(void)
         for (i = 0; i < 20000; i++)
         {
             sys_move_cursor(1, print_location);
-            printf("> [TASK] Has acquired lock and running.(%d)\n", i);
+            printf("> [TASK2] Has acquired lock and running.(%d)           \n", i);
         }
 
         sys_move_cursor(1, print_location);
         printf("%s", blank);
 
         sys_move_cursor(1, print_location);
-        printf("> [TASK] Has acquired lock and exited.\n");
+        printf("> [TASK2] Has acquired lock and exited.           \n");
 
         binsemop(lock_id, BINSEM_OP_UNLOCK);
     }

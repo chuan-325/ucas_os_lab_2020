@@ -33,7 +33,7 @@
 #include "queue.h"
 
 #define IGNORE 0
-#define NUM_SYSCALLS 64
+#define NUM_SYSCALLS 128
 
 /* define */
 #define SYSCALL_SPAWN 0
@@ -71,6 +71,11 @@
 #define SYSCALL_BARRIER_INIT 40
 #define SYSCALL_BARRIER_WAIT 41
 
+#define SYSCALL_WAIT_RECV_PACKAGE 42
+#define SYSCALL_NET_RECV 43
+#define SYSCALL_NET_SEND 44
+#define SYSCALL_INIT_MAC 45
+
 #define SYSCALL_FS_INIT 50
 #define SYSCALL_FS_MKDIR 51
 #define SYSCALL_FS_RMDIR 52
@@ -84,10 +89,8 @@
 #define SYSCALL_FS_READ 60
 #define SYSCALL_FS_CLOSE 61
 
-#define SYSCALL_WAIT_RECV_PACKAGE 42
-#define SYSCALL_NET_RECV 43
-#define SYSCALL_NET_SEND 44
-#define SYSCALL_INIT_MAC 45
+#define SYSCALL_BINSEM_GET 70
+#define SYSCALL_BINSEM_OP 71
 
 /* syscall function pointer */
 uint64_t (*syscall[NUM_SYSCALLS])();
@@ -139,5 +142,8 @@ int sys_fwrite(uint32_t, char *, uint32_t);
 int sys_fread(uint32_t, char *, uint32_t);
 int sys_close(uint32_t);
 int sys_cat(char *);
+
+int binsemget(int key);
+int binsemop(int binsem_id, int op);
 
 #endif

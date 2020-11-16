@@ -16,7 +16,7 @@ SRC_SCHED	= $(MAIN_DIR)/kernel/sched/sched.c $(MAIN_DIR)/kernel/sched/queue.c $(
 SRC_SYSCALL	= $(MAIN_DIR)/kernel/syscall/syscall.c
 SRC_LIBS	= $(MAIN_DIR)/libs/string.c $(MAIN_DIR)/libs/printk.c
 SRC_TEST	= ./test.c
-SRC_TEST2	= ./test_scheduler1.c ./test_scheduler2.c  ./test_lock1.c ./test_sleep.c ./test_timer.c # ./test_lock2.c  2->1
+SRC_TEST2	= ./test_scheduler1.c ./test_scheduler2.c  ./test_lock2.c ./test_sleep.c ./test_timer.c
 SRC_IMAGE	= $(MAIN_DIR)/tools/createimage.c
 LD = $(MAIN_DIR)/ld.script
 
@@ -47,3 +47,4 @@ asm:
 
 qemu:
 	sudo dd if=image of=disk conv=notrunc
+	cp disk ~/OSLab-MIPS/qemu/build/mips64el-softmmu/disk

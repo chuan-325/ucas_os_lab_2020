@@ -1,4 +1,5 @@
 #include "time.h"
+#include "sched.h"
 
 uint32_t time_elapsed = 0;
 
@@ -17,7 +18,7 @@ uint32_t get_timer()
 void latency(uint32_t time)
 {
     uint32_t begin_time = get_timer();
-    
+
     while (get_timer() - begin_time < time)
     {
     };
