@@ -122,7 +122,11 @@ void screen_clear(int line1, int line2)
 {
     int i, j;
 
-    for (i = 0; i < SCREEN_HEIGHT; i++)
+    for (i = 0; i < line1; i++)
+        for (j = 0; j < SCREEN_WIDTH; j++)
+            new_screen[i * SCREEN_WIDTH + j] = old_screen[i * SCREEN_WIDTH + j];
+
+    for (i = line1; i < line2; i++)
     {
         for (j = 0; j < SCREEN_WIDTH; j++)
         {
@@ -130,6 +134,10 @@ void screen_clear(int line1, int line2)
             old_screen[i * SCREEN_WIDTH + j] = 0;
         }
     }
+
+    for (i = line2; i < SCREEN_HEIGHT; i++)
+        for (j = 0; j < SCREEN_WIDTH; j++)
+            new_screen[i * SCREEN_WIDTH + j] = old_screen[i * SCREEN_WIDTH + j];
 
     screen_cursor_x = 0;
     screen_cursor_y = 0;
@@ -153,10 +161,10 @@ void screen_write(char *buff)
     }
 }
 
-/* 
- * This function is used to print the serial port when the clock 
- * interrupt is triggered. However, we need to pay attention to 
- * the fact that in order to speed up printing, we only refresh 
+/*
+ * This function is used to print the serial port when the clock
+ * interrupt is triggered. However, we need to pay attention to
+ * the fact that in order to speed up printing, we only refresh
  * the characters that have been modified since this time.
  */
 void screen_reflush(void)
@@ -186,4 +194,11 @@ void screen_reflush(void)
 
     /* recover cursor position */
     vt100_move_cursor(screen_cursor_x, screen_cursor_y);
+}
+
+char read_keyboard(void)
+{
+    while (*((char *)STAT_REG) & 0x01)
+        return *((char *)DATA_REG);
+    return 0;
 }

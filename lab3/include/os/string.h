@@ -38,6 +38,8 @@ void bzero(void *dest, uint32_t len);
 
 int strcmp(char *str1, char *str2);
 
+int memcmp(char *str1, char *str2, uint32_t size);
+
 void strcpy(char *dest, char *src);
 
 char *strcat(char *dest, char *src);

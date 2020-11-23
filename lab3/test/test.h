@@ -26,7 +26,7 @@
 #ifndef INCLUDE_TEST_H_
 #define INCLUDE_TEST_H_
 
-//!#define P3_TEST
+#define P3_TEST
 //#define P4_TEST
 //#define P5_TEST
 //#define P6_TEST

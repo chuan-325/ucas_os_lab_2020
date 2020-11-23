@@ -88,6 +88,8 @@ void set_pcb(pid_t pid, pcb_t *pcb, task_info_t *task_info)
     pcb->pid = pid;
     pcb->type = task_info->type;
     pcb->prior = task_info->prior;
+    pcb->state = (task_info->type == USER_PROCESS || task_info->type == USER_THREAD) ? STATE_USER : STATE_KERNEL;
+
     int i;
     for (i = 0; i < 32; i++)
         pcb->name[i] = task_info->name[i];
@@ -95,6 +97,7 @@ void set_pcb(pid_t pid, pcb_t *pcb, task_info_t *task_info)
     if (pid < NUM_MAX_TASK)
         pcb->next = (pcb_t *)(&pcb + sizeof(pcb_t));
 
+    // init contexts
     // ra
     pcb->kernel_context.regs[31] = (uint64_t)exception_handler_exit;
     pcb->user_context.cp0_epc = task_info->entry_point;
@@ -104,8 +107,6 @@ void set_pcb(pid_t pid, pcb_t *pcb, task_info_t *task_info)
     // CPRs
     pcb->user_context.cp0_status = 0x10008002;
     pcb->kernel_context.cp0_status = 0x10008002;
-    // init running state
-    pcb->state = STATE_USER;
 }
 
 static void check_sleeping()
@@ -138,13 +139,6 @@ void scheduler(void)
     current_running->cursor_x = screen_cursor_x;
     current_running->cursor_y = screen_cursor_y;
 
-    // which to switch? sequence sched
-    /*
-    if (!current_running->next) // no next: head(ready_queue)
-        current_running = (pcb_t *)(ready_queue.head);
-    else // with next: next
-        current_running = (pcb_t *)(current_running->next);
-    */
     pcb_t *next_running;
     next_running = current_running->next; // init nr
 
@@ -152,7 +146,7 @@ void scheduler(void)
 
     while (1)
     {
-        while (next_running)
+        while (next_running != NULL)
         { // check validity of next running
             if (next_running->prior >= global_prior)
             {
@@ -201,7 +195,7 @@ void do_unblock_one(queue_t *queue)
 {
     void *be_unblock;
     if (queue_is_empty(queue))
-        printk("queue is empty!");
+        printf("queue is empty!");
     be_unblock = queue_dequeue(queue);
     queue_push(&ready_queue, be_unblock);
     ((pcb_t *)be_unblock)->block_me = NULL; //lab3
@@ -267,7 +261,7 @@ int do_kill(pid_t pid)
             break;
         }
     }
-    if (flag == 0)
+    if (flag == 0) // not existed
         return -1;
 
     pcb_t *to_kill;
@@ -289,6 +283,8 @@ int do_kill(pid_t pid)
     do_unblock_all(&(to_kill->wait_queue));
     to_kill->status = TASK_EXITED;
     to_kill->block_me = NULL;
+
+    return 0;
 }
 
 int do_waitpid(pid_t pid)
@@ -304,7 +300,7 @@ int do_waitpid(pid_t pid)
         }
 
     if (find == 0 && i == NUM_MAX_TASK - 1)
-        return -1;
+        return -1; // not existed
 
     if (pcb[i].status != TASK_EXITED)
         do_block(&(pcb[i].wait_queue));
@@ -313,8 +309,30 @@ int do_waitpid(pid_t pid)
 // process show
 void do_process_show()
 {
+    // TODO ok
+    screen_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+    printf("[PROC TABLE]\n");
+    int i, num_ps = 0;
+    for (i = 0; i < NUM_MAX_TASK; i++) // show running
+    {
+        if (pcb[i].status == TASK_RUNNING)
+        {
+            screen_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+            printf("[%d] PID = %d STATUS = RUNNING\n", num_ps++, pcb[i].pid);
+        }
+    }
 }
 
 pid_t do_getpid()
 {
+    // TODO ok
+    return current_running->pid;
 }
+
+// which to switch? sequence sched
+/*
+    if (!current_running->next) // no next: head(ready_queue)
+        current_running = (pcb_t *)(ready_queue.head);
+    else // with next: next
+        current_running = (pcb_t *)(current_running->next);
+    */

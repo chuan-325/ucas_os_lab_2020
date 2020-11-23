@@ -56,32 +56,32 @@ static void init_pcb()
     queue_init(&block_queue);
     queue_init(&sleep_queue);
 
-    pcb[0].kernel_stack_top = pcb[0].kernel_context.regs[29] = ADDR_KNSTACK_BASE; //sp
+    struct task_info task0 = {"task0", (uint64_t)&test_shell, USER_PROCESS, 5};
 
-    pcb[0].prev = NULL;
-    pcb[0].next = &pcb[1]; // when init, the next must be 1
-
-    pcb[0].pid = 0;
+    // pcb0
+    pcb[0].kernel_stack_top = ADDR_KNSTACK_BASE; //sp
+    pcb[0].user_stack_top = ADDR_USSTACK_BASE;
     pcb[0].block_me = NULL;
-    current_running = &pcb[0];
-    for (i = 0; i < 3; i++)
-    {
-        int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], sched2_tasks[i]);
-        queue_push(&ready_queue, &pcb[index]);
-    }
-    for (i = 0; i < 2; i++)
-    {
-        int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], timer_tasks[i]);
-        queue_push(&ready_queue, &pcb[index]);
-    }
-    for (i = 0; i < 2; i++)
-    {
-        int index = alloc_pcb();
-        set_pcb(++process_id, &pcb[index], lock_tasks[i]);
-        queue_push(&ready_queue, &pcb[index]);
-    }
+    pcb[0].prev = NULL;
+    pcb[0].next = &pcb[1];
+    queue_init(&(pcb[0].lock_queue));
+    queue_init(&(pcb[0].wait_queue));
+    set_pcb(0, &pcb[0], &task0);
+    queue_push(&ready_queue, &pcb[0]);
+
+    pcb[0].cursor_x = SHELL_LEFT_LOC;
+    pcb[0].cursor_y = SHELL_BOUNDARY;
+
+    // pcb1
+    pcb[1].kernel_stack_top = ADDR_KNSTACK_BASE + SIZE_KERNEL_STACK; //sp
+    pcb[1].user_stack_top = ADDR_USSTACK_BASE + SIZE_USER_STACK;
+    pcb[1].block_me = NULL;
+    pcb[1].prev = NULL;
+    pcb[1].next = &pcb[0];
+    pcb[1].kernel_context.regs[29] = pcb[1].kernel_stack_top;
+    pcb[1].user_context.regs[29] = pcb[1].user_stack_top;
+
+    current_running = &pcb[1];
 }
 
 static void init_binsem()
@@ -150,6 +150,8 @@ static void init_syscall(void)
 
     syscall[SYSCALL_BINSEM_GET] = (uint64_t(*)())(&do_binsemget);
     syscall[SYSCALL_BINSEM_OP] = (uint64_t(*)())(&do_binsemop);
+
+    syscall[SYSCALL_READ_KEYBOARD] = (uint64_t(*)())(&read_keyboard);
 }
 
 /* [0] The beginning of everything */

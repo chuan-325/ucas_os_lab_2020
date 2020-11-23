@@ -14,7 +14,7 @@ void system_call_helper(uint64_t fn, uint64_t arg1, uint64_t arg2, uint64_t arg3
     syscall[fn](arg1, arg2, arg3);
 }
 
-void sys_spawn(task_info_t *info)
+int sys_spawn(task_info_t *info)
 {
     invoke_syscall(SYSCALL_SPAWN, (uint64_t)info, IGNORE, IGNORE);
 }
@@ -223,4 +223,9 @@ int binsemget(int key)
 int binsemop(int binsem_id, int op)
 {
     invoke_syscall(SYSCALL_BINSEM_OP, (uint64_t)binsem_id, (uint64_t)op, IGNORE);
+}
+
+char sys_read_keyboard()
+{
+    invoke_syscall(SYSCALL_READ_KEYBOARD, IGNORE, IGNORE, IGNORE);
 }

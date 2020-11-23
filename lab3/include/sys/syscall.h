@@ -31,6 +31,7 @@
 #include "type.h"
 #include "sync.h"
 #include "queue.h"
+#include "sched.h"
 
 #define IGNORE 0
 #define NUM_SYSCALLS 128
@@ -92,12 +93,15 @@
 #define SYSCALL_BINSEM_GET 70
 #define SYSCALL_BINSEM_OP 71
 
+#define SYSCALL_READ_KEYBOARD 72
+
 /* syscall function pointer */
 uint64_t (*syscall[NUM_SYSCALLS])();
 
 void system_call_helper(uint64_t, uint64_t, uint64_t, uint64_t);
 extern uint64_t invoke_syscall(uint64_t, uint64_t, uint64_t, uint64_t);
 
+int sys_spawn(task_info_t *info);
 void sys_exit(void);
 void sys_sleep(uint32_t);
 int sys_kill(pid_t);
@@ -111,7 +115,7 @@ void sys_reflush();
 char sys_serial_read();
 void sys_serial_write(char);
 int sys_read_shell_buff(char *);
-void sys_screen_clean(int, int);
+void sys_screen_clear(int, int);
 
 void mutex_lock_init(mutex_lock_t *);
 void mutex_lock_acquire(mutex_lock_t *);
@@ -145,5 +149,6 @@ int sys_cat(char *);
 
 int binsemget(int key);
 int binsemop(int binsem_id, int op);
+char sys_read_keyboard();
 
 #endif

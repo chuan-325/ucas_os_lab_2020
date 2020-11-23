@@ -7,7 +7,6 @@ char *hello = "\r\nHello OS\r\n";
 
 void __attribute__((section(".entry_function"))) _start(void)
 {
-    // my code begin
     // printstr hello
     void (*pstr)(char *) = (void *)PSTR; // func_ptr "*pstr" -> printstr() function
     (*pstr)(hello);                      // use func_ptr "*pstr" to invoke printstr() function
@@ -21,5 +20,4 @@ void __attribute__((section(".entry_function"))) _start(void)
         if (newc)
             (*pch)(input); // use func_ptr "*pstr" to invoke printstr() function, "char input" as parameter
     }
-    // my code end
 }

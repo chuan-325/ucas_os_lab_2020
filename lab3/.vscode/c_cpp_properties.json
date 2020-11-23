@@ -11,7 +11,7 @@
                 "${workspaceFolder}/include/sys",
                 "${workspaceFolder}/libs",
                 "${workspaceFolder}/test",
-                "${workspaceFolder}/test/test_project2"
+                "${workspaceFolder}/test/test_project3"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
