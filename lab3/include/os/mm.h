@@ -3,10 +3,20 @@
 #include "type.h"
 #include "sched.h"
 
-typedef struct PTE
-{
+// TODO: lab4
+#define PT_SIZE 0x100
 
-} PTE_t; /* 128 + 28 = 156B */
+typedef struct pte
+{
+    uint32_t
+        flag_eo, //even or edd
+        valid;
+    uint64_t
+        entryhi,
+        entrylo;
+} pte_t; // 4*2+8*2=24B
+
+extern pte_t *pt[PT_SIZE];
 
 void init_page_table();
 void do_TLB_Refill();

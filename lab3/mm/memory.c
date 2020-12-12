@@ -1,5 +1,9 @@
 #include "mm.h"
 
+// TODO: lab4 vm
+
+pte_t *pt[PT_SIZE];
+
 void init_page_table()
 {
 }
