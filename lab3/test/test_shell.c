@@ -95,7 +95,7 @@ static struct task_info *test_tasks[NUM_MAX_TASK] = {
 #endif
 
 char *command_boundary = "> -------------- COMMAND --------------";
-char *user_name = "> ROOT@UCAS_OS$";
+char *user_name = "> ROOT@UCAS_OS$ ";
 
 void hint_print()
 {
@@ -150,23 +150,27 @@ void test_shell()
 			printf("%c", in);
 			in_buf[in_id] = '\0';
 			if (memcmp(in_buf, "ps", 2) == 0 &&
-			    in_buf[2] != '\0') { // ps
+			    in_buf[2] == '\0') { // ps
+				pcb[0].cursor_x = SHELL_LEFT_LOC;
 				screen_move_cursor(pcb[0].cursor_x,
 						   ++pcb[0].cursor_y);
 				sys_process_show();
 
 				pcb[0].cursor_y++;
 			} else if (memcmp(in_buf, "clear", 5) == 0 &&
-				   in_buf[5] != '\0') { // clear
+				   in_buf[5] == '\0') { // clear
 				sys_screen_clear(SHELL_BOUNDARY, SCREEN_HEIGHT);
 
-				pcb[0].cursor_y = SHELL_BOUNDARY;
+				pcb[0].cursor_y = SHELL_BOUNDARY - 1;
 			} else if (memcmp(in_buf, "kill", 4) == 0) { //kill
 				screen_move_cursor(pcb[0].cursor_x,
 						   ++pcb[0].cursor_y);
 				int be_kill = get_num(in_buf);
 
-				int has_killed = sys_kill((pid_t)be_kill);
+				int has_killed =
+					(be_kill > 0) ?
+						sys_kill((pid_t)be_kill) :
+						(-1);
 				if (has_killed == 0)
 					printf("PROCESS (pid=%d) has been KILLED.\n",
 					       be_kill);
@@ -177,7 +181,10 @@ void test_shell()
 			} else if (memcmp(in_buf, "wait", 4) == 0) { //wait
 				int wait_who = get_num(in_buf);
 
-				int has_waited = sys_waitpid((pid_t)wait_who);
+				int has_waited =
+					(wait_who > 0) ?
+						sys_waitpid((pid_t)wait_who) :
+						(-1);
 				if (has_waited == -1) {
 					screen_move_cursor(pcb[0].cursor_x,
 							   ++pcb[0].cursor_y);
@@ -192,7 +199,7 @@ void test_shell()
 				int be_exec = get_num(in_buf);
 
 				int has_exec;
-				if (be_exec >= 0 || be_exec < 16)
+				if (be_exec > 0 && be_exec < 16)
 					has_exec =
 						sys_spawn(test_tasks[be_exec]);
 				else
@@ -213,7 +220,8 @@ void test_shell()
 				hint_print();
 			}
 
-			screen_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
+			pcb[0].cursor_x = SHELL_LEFT_LOC;
+			screen_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
 			in_id = 0;
 			memset(in_buf, 0, IN_LEN_MAX * (sizeof(char)));
 			printf("%s", user_name); // show username
