@@ -304,14 +304,14 @@ int do_waitpid(pid_t pid)
 void do_process_show()
 {
 	// TODO ok
-	pcb[0].cursor_x = SHELL_LEFT_LOC;
-	screen_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+	// pcb[0].cursor_x = SHELL_LEFT_LOC;
+	vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
 	printk("[PROC TABLE]\n");
 	int i, num_ps = 0;
 	for (i = 0; i < NUM_MAX_TASK; i++) // show running
 	{
 		if (pcb[i].status == TASK_RUNNING) {
-			screen_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+			vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
 			printk("[%d] PID = %d STATUS = RUNNING\n", num_ps++,
 			       pcb[i].pid);
 		}

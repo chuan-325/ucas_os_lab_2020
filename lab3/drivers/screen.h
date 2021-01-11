@@ -32,8 +32,8 @@ extern int screen_cursor_y;
 
 #define SCREEN_WIDTH 80
 #define SCREEN_HEIGHT 30
-#define SHELL_BOUNDARY 20
-#define SHELL_LEFT_LOC 1
+#define SHELL_BOUNDARY 18
+#define SHELL_LEFT_LOC 0
 #define IN_LEN_MAX 40
 
 void vt100_move_cursor(int, int);

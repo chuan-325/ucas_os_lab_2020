@@ -142,6 +142,7 @@ static void init_syscall(void)
     //syscall[SYSCALL_READ]
     syscall[SYSCALL_CURSOR] = (uint64_t(*)())(&screen_move_cursor);
     syscall[SYSCALL_REFLUSH] = (uint64_t(*)())(&screen_reflush);
+    syscall[SYSCALL_SCREEN_CLEAR] = (uint64_t(*)())(&screen_clear);
     //syscall[SYSCALL_SERIAL_READ]
 
     syscall[SYSCALL_MUTEX_LOCK_INIT] = (uint64_t(*)())(&mutex_lock_init);

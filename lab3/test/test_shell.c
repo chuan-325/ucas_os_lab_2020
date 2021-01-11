@@ -35,7 +35,7 @@
 
 #ifdef P3_TEST
 
-struct task_info task0 = { "task0", (uint64_t)&test_shell, USER_PROCESS, 5 };
+struct task_info task0;
 
 struct task_info task1 = { "task1", (uint64_t)&ready_to_exit_task, USER_PROCESS,
 			   1 };
@@ -156,21 +156,23 @@ void test_shell()
 						   ++pcb[0].cursor_y);
 				sys_process_show();
 
-				pcb[0].cursor_y++;
+				// pcb[0].cursor_y++;
 			} else if (memcmp(in_buf, "clear", 5) == 0 &&
 				   in_buf[5] == '\0') { // clear
-				sys_screen_clear(SHELL_BOUNDARY, SCREEN_HEIGHT);
+				sys_screen_clear(SHELL_BOUNDARY + 1,
+						 SCREEN_HEIGHT);
 
-				pcb[0].cursor_y = SHELL_BOUNDARY - 1;
+				pcb[0].cursor_y = SHELL_BOUNDARY + 1;
 			} else if (memcmp(in_buf, "kill", 4) == 0) { //kill
-				screen_move_cursor(pcb[0].cursor_x,
-						   ++pcb[0].cursor_y);
 				int be_kill = get_num(in_buf);
 
 				int has_killed =
 					(be_kill > 0) ?
 						sys_kill((pid_t)be_kill) :
 						(-1);
+				pcb[0].cursor_x = SHELL_LEFT_LOC;
+				screen_move_cursor(pcb[0].cursor_x,
+						   ++pcb[0].cursor_y);
 				if (has_killed == 0)
 					printf("PROCESS (pid=%d) has been KILLED.\n",
 					       be_kill);
@@ -185,6 +187,7 @@ void test_shell()
 					(wait_who > 0) ?
 						sys_waitpid((pid_t)wait_who) :
 						(-1);
+				pcb[0].cursor_x = SHELL_LEFT_LOC;
 				if (has_waited == -1) {
 					screen_move_cursor(pcb[0].cursor_x,
 							   ++pcb[0].cursor_y);
@@ -194,8 +197,6 @@ void test_shell()
 
 				pcb[0].cursor_y++;
 			} else if (memcmp(in_buf, "exec", 4) == 0) { //exec
-				screen_move_cursor(pcb[0].cursor_x,
-						   ++pcb[0].cursor_y);
 				int be_exec = get_num(in_buf);
 
 				int has_exec;
@@ -205,6 +206,7 @@ void test_shell()
 				else
 					has_exec = -1; // invalid task
 
+				pcb[0].cursor_x = SHELL_LEFT_LOC;
 				screen_move_cursor(pcb[0].cursor_x,
 						   ++pcb[0].cursor_y);
 				if (has_exec == -1) {
@@ -221,7 +223,7 @@ void test_shell()
 			}
 
 			pcb[0].cursor_x = SHELL_LEFT_LOC;
-			screen_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+			screen_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
 			in_id = 0;
 			memset(in_buf, 0, IN_LEN_MAX * (sizeof(char)));
 			printf("%s", user_name); // show username
