@@ -10,9 +10,9 @@ static char blank[] = {"                                                "};
 mutex_lock_t lock1;
 mutex_lock_t lock2;
 
-void ready_to_exit_task()
+void ready_to_exit_task()//task1
 {
-    int i = 0, print_location = 0;
+    int i = 0, print_location = 1;
 
     mutex_lock_acquire(&lock1);
     mutex_lock_acquire(&lock2);
@@ -20,7 +20,7 @@ void ready_to_exit_task()
     // sys_spawn(&task1);
     // sys_spawn(&task2);
 
-    for (i = 0; i < 500; i++)
+    for (i = 0; i < 5000; i++)
     {
         sys_move_cursor(0, print_location);
         uint32_t core_id = get_cpu_id();
@@ -30,9 +30,9 @@ void ready_to_exit_task()
 }
 
 // pid = 3
-void wait_lock_task()
+void wait_lock_task()//task2
 {
-    int i, print_location = 1;
+    int i, print_location = 2;
 
     sys_move_cursor(0, print_location);
     printf("> [TASK] I want to acquire a mute lock from task(pid=2).");
@@ -46,9 +46,9 @@ void wait_lock_task()
 }
 
 // pid = 4
-void wait_exit_task()
+void wait_exit_task()//task3
 {
-    int i, print_location = 2;
+    int i, print_location = 3;
 
     sys_move_cursor(0, print_location);
     printf("> [TASK] I want to wait task (pid=2) to exit.");

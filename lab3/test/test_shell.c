@@ -219,6 +219,8 @@ void test_shell()
 
 				pcb[0].cursor_y++;
 			} else { // error
+				printf("%c", in);
+                pcb[0].cursor_x = SHELL_LEFT_LOC;
 				hint_print();
 			}
 

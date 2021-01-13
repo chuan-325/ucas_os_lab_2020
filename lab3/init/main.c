@@ -145,9 +145,9 @@ static void init_syscall(void)
     syscall[SYSCALL_SCREEN_CLEAR] = (uint64_t(*)())(&screen_clear);
     //syscall[SYSCALL_SERIAL_READ]
 
-    syscall[SYSCALL_MUTEX_LOCK_INIT] = (uint64_t(*)())(&mutex_lock_init);
-    syscall[SYSCALL_MUTEX_LOCK_ACQUIRE] = (uint64_t(*)())(&mutex_lock_acquire);
-    syscall[SYSCALL_MUTEX_LOCK_RELEASE] = (uint64_t(*)())(&mutex_lock_release);
+    syscall[SYSCALL_MUTEX_LOCK_INIT] = (uint64_t(*)())(&do_mutex_lock_init);
+    syscall[SYSCALL_MUTEX_LOCK_ACQUIRE] = (uint64_t(*)())(&do_mutex_lock_acquire);
+    syscall[SYSCALL_MUTEX_LOCK_RELEASE] = (uint64_t(*)())(&do_mutex_lock_release);
 
     syscall[SYSCALL_BINSEM_GET] = (uint64_t(*)())(&do_binsemget);
     syscall[SYSCALL_BINSEM_OP] = (uint64_t(*)())(&do_binsemop);
@@ -186,7 +186,7 @@ void __attribute__((section(".entry_function"))) _start(void)
 
     /* init screen */
     init_screen();
-    printk("> [INIT] SCREEN initialization succeeded.\n");
+    // printk("> [INIT] SCREEN initialization succeeded.\n");
 
     /* init filesystem */
     //?read_super_block();

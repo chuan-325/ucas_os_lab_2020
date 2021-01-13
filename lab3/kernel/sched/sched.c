@@ -217,6 +217,7 @@ int do_spawn(task_info_t *task)
 		return -1;
 	set_pcb(++process_id, &pcb[i], task);
 	queue_push(&ready_queue, &pcb[i]);
+	pcb[i].status = TASK_READY;
 	return 0;
 }
 
@@ -239,11 +240,13 @@ void do_exit(void)
 		t = to_exit->lock_queue.head;
 		do_unblock_all(&(t->blocked));
 		queue_dequeue(&(to_exit->lock_queue));
+		t->status = UNLOCKED;
 	}
 	//wait
 	do_unblock_all(&(to_exit->wait_queue));
 
 	to_exit->status = TASK_EXITED;
+	do_scheduler();
 }
 
 int do_kill(pid_t pid)
@@ -273,6 +276,7 @@ int do_kill(pid_t pid)
 		t = to_kill->lock_queue.head;
 		do_unblock_all(&(t->blocked));
 		queue_dequeue(&(to_kill->lock_queue));
+		t->status = UNLOCKED;
 	}
 	//wait
 	do_unblock_all(&(to_kill->wait_queue));
@@ -310,10 +314,25 @@ void do_process_show()
 	int i, num_ps = 0;
 	for (i = 0; i < NUM_MAX_TASK; i++) // show running
 	{
-		if (pcb[i].status == TASK_RUNNING) {
+		task_status_t status = pcb[i].status;
+		switch (status) {
+		case TASK_RUNNING:
 			vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
 			printk("[%d] PID = %d STATUS = RUNNING\n", num_ps++,
 			       pcb[i].pid);
+			break;
+		case TASK_READY:
+			vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+			printk("[%d] PID = %d STATUS = READY\n", num_ps++,
+			       pcb[i].pid);
+			break;
+		case TASK_BLOCKED:
+			vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+			printk("[%d] PID = %d STATUS = BLOCKED\n", num_ps++,
+			       pcb[i].pid);
+			break;
+		default:
+			break;
 		}
 	}
 }
