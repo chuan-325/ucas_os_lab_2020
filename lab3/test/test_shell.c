@@ -99,8 +99,9 @@ char *user_name = "> ROOT@UCAS_OS$ ";
 
 void hint_print()
 {
-	screen_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
-	printf("[INFO] Input format: [ps/clear] | [exec/wait/kill] <task_num> \n");
+    pcb[0].cursor_x = SHELL_LEFT_LOC;
+	sys_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+	printf("[INFO] Input format: [ps/clear] | [exec/wait/kill] <task_num> ");
 }
 
 int get_num(char in_buf[])
@@ -124,9 +125,10 @@ void test_shell()
 {
 	//TODO ok
 
-	screen_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
-	printf("%s\n", command_boundary); // show boundary
-	screen_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+	sys_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
+	printf("%s", command_boundary); // show boundary
+	pcb[0].cursor_x = SHELL_LEFT_LOC;
+	sys_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
 	printf("%s", user_name); // show username
 
 	char in_buf[IN_LEN_MAX] = { 0 };
@@ -149,21 +151,20 @@ void test_shell()
 		} else { // parsing buffer when '\r'
 			printf("%c", in);
 			in_buf[in_id] = '\0';
-			if (memcmp(in_buf, "ps", 2) == 0 &&
-			    in_buf[2] == '\0') { // ps
+			if (memcmp(in_buf, "ps", 2) == 0 && in_buf[2] == '\0')
+            { // ps
 				pcb[0].cursor_x = SHELL_LEFT_LOC;
-				screen_move_cursor(pcb[0].cursor_x,
+				sys_move_cursor(pcb[0].cursor_x,
 						   ++pcb[0].cursor_y);
 				sys_process_show();
-
-				// pcb[0].cursor_y++;
-			} else if (memcmp(in_buf, "clear", 5) == 0 &&
-				   in_buf[5] == '\0') { // clear
+			} else if (memcmp(in_buf, "clear", 5) == 0 && in_buf[5] == '\0')
+            { // clear
 				sys_screen_clear(SHELL_BOUNDARY + 1,
 						 SCREEN_HEIGHT);
 
 				pcb[0].cursor_y = SHELL_BOUNDARY + 1;
-			} else if (memcmp(in_buf, "kill", 4) == 0) { //kill
+			} else if (memcmp(in_buf, "kill", 4) == 0)
+            { //kill
 				int be_kill = get_num(in_buf);
 
 				int has_killed =
@@ -171,16 +172,17 @@ void test_shell()
 						sys_kill((pid_t)be_kill) :
 						(-1);
 				pcb[0].cursor_x = SHELL_LEFT_LOC;
-				screen_move_cursor(pcb[0].cursor_x,
+				sys_move_cursor(pcb[0].cursor_x,
 						   ++pcb[0].cursor_y);
 				if (has_killed == 0)
-					printf("PROCESS (pid=%d) has been KILLED.\n",
+					printf("PROCESS (pid=%d) has been KILLED.",
 					       be_kill);
 				else if (has_killed == -1)
-					printf("PROCESS NOT EXISTED.\n");
+					printf("PROCESS NOT EXISTED.");
 
 				pcb[0].cursor_y++;
-			} else if (memcmp(in_buf, "wait", 4) == 0) { //wait
+			} else if (memcmp(in_buf, "wait", 4) == 0)
+            { //wait
 				int wait_who = get_num(in_buf);
 
 				int has_waited =
@@ -189,14 +191,15 @@ void test_shell()
 						(-1);
 				pcb[0].cursor_x = SHELL_LEFT_LOC;
 				if (has_waited == -1) {
-					screen_move_cursor(pcb[0].cursor_x,
+					sys_move_cursor(pcb[0].cursor_x,
 							   ++pcb[0].cursor_y);
-					printf("PROCESS %d NOT EXISTED.\n",
+					printf("PROCESS %d NOT EXISTED.",
 					       wait_who);
 				}
 
 				pcb[0].cursor_y++;
-			} else if (memcmp(in_buf, "exec", 4) == 0) { //exec
+			} else if (memcmp(in_buf, "exec", 4) == 0)
+            { //exec
 				int be_exec = get_num(in_buf);
 
 				int has_exec;
@@ -207,13 +210,13 @@ void test_shell()
 					has_exec = -1; // invalid task
 
 				pcb[0].cursor_x = SHELL_LEFT_LOC;
-				screen_move_cursor(pcb[0].cursor_x,
-						   ++pcb[0].cursor_y);
+				sys_move_cursor(pcb[0].cursor_x,
+						   pcb[0].cursor_y);
 				if (has_exec == -1) {
-					printf("Task %d EXEC FAILED/NOT EXISTED.\n",
+					printf("Task %d EXEC FAILED/NOT EXISTED.",
 					       be_exec);
 				} else {
-					printf("Task %d EXEC SUCCESS.\n",
+					printf("Task %d EXEC SUCCESS.",
 					       be_exec);
 				}
 
@@ -225,7 +228,7 @@ void test_shell()
 			}
 
 			pcb[0].cursor_x = SHELL_LEFT_LOC;
-			screen_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
+			sys_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
 			in_id = 0;
 			memset(in_buf, 0, IN_LEN_MAX * (sizeof(char)));
 			printf("%s", user_name); // show username

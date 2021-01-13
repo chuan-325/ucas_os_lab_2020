@@ -310,7 +310,7 @@ void do_process_show()
 	// TODO ok
 	// pcb[0].cursor_x = SHELL_LEFT_LOC;
 	vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
-	printk("[PROC TABLE]\n");
+	printk("[PROC TABLE]");
 	int i, num_ps = 0;
 	for (i = 0; i < NUM_MAX_TASK; i++) // show running
 	{
@@ -318,23 +318,24 @@ void do_process_show()
 		switch (status) {
 		case TASK_RUNNING:
 			vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
-			printk("[%d] PID = %d STATUS = RUNNING\n", num_ps++,
+			printk("[%d] PID = %d STATUS = RUNNING", num_ps++,
 			       pcb[i].pid);
 			break;
 		case TASK_READY:
 			vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
-			printk("[%d] PID = %d STATUS = READY\n", num_ps++,
+			printk("[%d] PID = %d STATUS = READY", num_ps++,
 			       pcb[i].pid);
 			break;
 		case TASK_BLOCKED:
 			vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
-			printk("[%d] PID = %d STATUS = BLOCKED\n", num_ps++,
+			printk("[%d] PID = %d STATUS = BLOCKED", num_ps++,
 			       pcb[i].pid);
 			break;
 		default:
 			break;
 		}
 	}
+	screen_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
 }
 
 pid_t do_getpid()
