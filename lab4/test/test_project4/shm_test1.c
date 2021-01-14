@@ -4,19 +4,19 @@
 #include "time.h"
 #include "screen.h"
 #include "test4.h"
-
+ 
 #define SHM_KEY 1
-
-
+ 
+ 
 
 void shm_task1(void)
 {
      uint64_t key, shmid;
     int i = 0;
     uint32_t print_location = 3;
-
+    
     key = SHM_KEY;
-
+   
     shmid = shmget(key);
     sys_move_cursor(0, print_location);
     if (shmid == -1)
@@ -24,7 +24,7 @@ void shm_task1(void)
         printf("share memory task fault!\n");
         return;
     }
-
+    
     char *addr = shmat(shmid, NULL, 0);
     if (addr == -1)
     {
@@ -40,6 +40,6 @@ void shm_task1(void)
         sys_sleep(1);
     }
     shmdt(addr);
-
+     
     sys_exit();
 }
