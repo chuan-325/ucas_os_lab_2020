@@ -260,50 +260,57 @@ LEAF(exception_handler_exit)
     eret                         # end
 END(exception_handler_exit)
 
-LEAF(set_cp0_entryhi)
-
-END(set_cp0_entryhi)
-
-
-LEAF(get_cp0_index)
-
-END(get_cp0_index)
-
-LEAF(set_cp0_index)
-
-END(set_cp0_index)
-
 LEAF(get_cp0_badvaddr)
 
 END(get_cp0_badvaddr)
 
-LEAF(get_cp0_entrylo0)
+LEAF(get_cp0_index)            # cp0_index
+    dmfc0   v0, CP0_INDEX
+    jr      ra
+END(get_cp0_index)
 
+LEAF(set_cp0_index)
+    dmtc0   a0, CP0_INDEX
+    jr      ra
+END(set_cp0_index)
+
+LEAF(set_cp0_entryhi)          # cp0_entryhi
+    dmtc0   a0, CP0_ENTRYHI
+    jr      ra
+END(set_cp0_entryhi)
+
+LEAF(get_cp0_entrylo0)          # cp0_entrylo0
+    dmfc0   v0, CP0_ENTRYLO0
+    jr      ra
 END(get_cp0_entrylo0)
 
 LEAF(set_cp0_entrylo0)
-
+    dmtc0   a0, CP0_ENTRYLO0
+    jr      ra
 END(set_cp0_entrylo0)
 
-LEAF(get_cp0_entrylo1)
-
+LEAF(get_cp0_entrylo1)          # cp0_entrylo1
+    dmfc0   v0, CP0_ENTRYLO1
+    jr      ra
 END(get_cp0_entrylo1)
 
 LEAF(set_cp0_entrylo1)
-
+    dmtc0   a0, CP0_ENTRYLO1
+    jr      ra
 END(set_cp0_entrylo1)
 
-LEAF(set_cp0_pagemask)
-
+LEAF(set_cp0_pagemask)          # cp0_pagemask
+    dmtc0   a0, CP0_PAGEMASK
+    jr      ra
 END(set_cp0_pagemask)
-
-LEAF(tlbwr_operation)
-
-END(tlbwr_operation)
 
 LEAF(tlbwi_operation)
 
 END(tlbwi_operation)
+
+LEAF(tlbwr_operation)
+
+END(tlbwr_operation)
 
 LEAF(tlbp_operation)
 

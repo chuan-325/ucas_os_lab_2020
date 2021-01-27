@@ -1,19 +1,15 @@
 #ifndef INCLUDE_MM_H_
 #define INCLUDE_MM_H_
-#include "type.h"
 #include "sched.h"
+#include "type.h"
 
 // TODO: lab4
 #define PT_SIZE 0x100
 
-typedef struct pte
-{
-    uint32_t
-        flag_eo, //even or edd
-        valid;
-    uint64_t
-        entryhi,
-        entrylo;
+typedef struct pte {
+  uint32_t flag_eo, // even or odd
+      valid;
+  uint64_t entryhi, entrylo;
 } pte_t; // 4*2+8*2=24B
 
 extern pte_t *pt[PT_SIZE];
