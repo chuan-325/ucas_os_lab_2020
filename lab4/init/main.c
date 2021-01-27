@@ -138,6 +138,7 @@ static void init_syscall(void) {
   // syscall[SYSCALL_READ]
   syscall[SYSCALL_CURSOR] = (uint64_t(*)())(&screen_move_cursor);
   syscall[SYSCALL_REFLUSH] = (uint64_t(*)())(&screen_reflush);
+  syscall[SYSCALL_SERIAL_READ] = (uint64_t(*)())(&serial_read);
   syscall[SYSCALL_SCREEN_CLEAR] = (uint64_t(*)())(&screen_clear);
   // syscall[SYSCALL_SERIAL_READ]
 
@@ -147,11 +148,24 @@ static void init_syscall(void) {
 
   syscall[SYSCALL_BINSEM_GET] = (uint64_t(*)())(&do_binsemget);
   syscall[SYSCALL_BINSEM_OP] = (uint64_t(*)())(&do_binsemop);
-
-  syscall[SYSCALL_READ_KEYBOARD] = (uint64_t(*)())(&read_keyboard);
 }
 
-static void init_pte(void) { ; }
+static void init_tlb_entry(void) {
+  int i;
+  for (i = 0; i < 64; i++) {
+    uint64_t enhi = (i << 13); // |(asid&0xff)
+    uint64_t dpfn = i + 0x20000;
+    uint64_t enl0 =
+        (dpfn << 6) | (2 << 3) | (1 << 2) | (1 << 1) | (1); // d-pfn/c/d/v/g
+    uint64_t enl1 =
+        (dpfn << 6) | (2 << 3) | (1 << 2) | (1 << 1) | (1); // d-pfn/c/d/v/g
+    set_cp0_entryhi(enhi);
+    set_cp0_entrylo0(enl0);
+    set_cp0_entrylo1(enl1);
+    set_cp0_pagemask(0);
+    set_cp0_index(i);
+  }
+}
 
 /* [0] The beginning of everything */
 void __attribute__((section(".entry_function"))) _start(void) {
@@ -180,6 +194,10 @@ void __attribute__((section(".entry_function"))) _start(void) {
   /* init binsem */
   init_binsem();
   printk("> [INIT] Binsem initialization succeeded.\n");
+
+  /* init tlb entry */
+  init_tlb_entry();
+  printk("> [INIT] TLB entries initialization succeeded.\n");
 
   /* init screen */
   init_screen();

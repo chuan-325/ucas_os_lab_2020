@@ -1,9 +1,10 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
- *            Copyright (C) 2018 Institute of Computing Technology, CAS
- *               Author : Han Shukai (email : hanshukai@ict.ac.cn)
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
- *                       System call related processing
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * *
+ * * * * * * Copyright (C) 2018 Institute of Computing Technology, CAS Author :
+ * Han Shukai (email : hanshukai@ict.ac.cn)
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * *
+ * * * * * * System call related processing
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * *
+ * * * * * *
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -23,15 +24,16 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * *
+ * * * * * */
 
 #ifndef INCLUDE_SYSCALL_H_
 #define INCLUDE_SYSCALL_H_
 
-#include "type.h"
-#include "sync.h"
 #include "queue.h"
 #include "sched.h"
+#include "sync.h"
+#include "type.h"
 
 #define IGNORE 0
 #define NUM_SYSCALLS 128
@@ -93,8 +95,6 @@
 #define SYSCALL_BINSEM_GET 70
 #define SYSCALL_BINSEM_OP 71
 
-#define SYSCALL_READ_KEYBOARD 72
-
 /* syscall function pointer */
 uint64_t (*syscall[NUM_SYSCALLS])();
 
@@ -149,6 +149,5 @@ int sys_cat(char *);
 
 int binsemget(int key);
 int binsemop(int binsem_id, int op);
-char sys_read_keyboard();
 
 #endif
