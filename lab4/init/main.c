@@ -178,13 +178,17 @@ void __attribute__((section(".entry_function"))) _start(void) {
   init_binsem();
   printk("> [INIT] Binsem initialization succeeded.\n");
 
+  /* init page table */
+  init_page_table();
+  printk("> [INIT] Page Table Entries initialization succeeded.\n");
+
   /* init tlb entry */
   init_tlb_entry();
   printk("> [INIT] TLB entries initialization succeeded.\n");
 
   /* init screen */
+  printk("> [INIT] SCREEN initialization succeeded.\n");
   init_screen();
-  // printk("> [INIT] SCREEN initialization succeeded.\n");
 
   /* init filesystem */
   //?read_super_block();
