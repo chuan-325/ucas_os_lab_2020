@@ -14,8 +14,8 @@ void system_call_helper(uint64_t fn, uint64_t arg1, uint64_t arg2,
   syscall[fn](arg1, arg2, arg3);
 }
 
-int sys_spawn(task_info_t *info) {
-  invoke_syscall(SYSCALL_SPAWN, (uint64_t)info, IGNORE, IGNORE);
+int sys_spawn(task_info_t *info, uint64_t para) {
+  invoke_syscall(SYSCALL_SPAWN, (uint64_t)info, para, IGNORE);
 }
 
 void sys_exit(void) { invoke_syscall(SYSCALL_EXIT, IGNORE, IGNORE, IGNORE); }

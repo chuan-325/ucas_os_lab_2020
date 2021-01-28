@@ -305,7 +305,8 @@ LEAF(set_cp0_pagemask)          # cp0_pagemask
 END(set_cp0_pagemask)
 
 LEAF(tlbwi_operation)
-
+    tlbwi
+    jr      ra
 END(tlbwi_operation)
 
 LEAF(tlbwr_operation)

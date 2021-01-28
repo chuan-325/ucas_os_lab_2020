@@ -6,15 +6,13 @@
 
 #include "test4.h"
 
-#define RW_TIMES 3
-
 static uint64_t atoi(char *str) {
   int base = 10;
   if ((str[0] == '0' && str[1] == 'x') || (str[0] == '0' && str[1] == 'X')) {
     base = 16;
     str += 2;
   }
-  long ret = 0;
+  uint64_t ret = 0;
   while (*str != '\0') {
     if ('0' <= *str && *str <= '9') {
       ret = ret * base + (*str - '0');
@@ -36,22 +34,21 @@ static uint64_t atoi(char *str) {
 
 int rand() {
   int current_time = sys_get_timer();
-  return current_time % 100000;
+  return current_time % 100;
 }
 
-void rw_task1(char *argv[]) {
+void rw_task1(char argv[][10]) {
   int mem1, mem2 = 0;
   int curs = 0;
   int memory[RW_TIMES * 2];
 
   int i = 0;
 
-  // srand((uint32_t)get_ticks());
   for (i = 0; i < RW_TIMES; i++) {
     sys_move_cursor(1, curs + i);
     mem1 = atoi(argv[i + 2]);
 
-    memory[i] = mem2 = rand();
+    memory[i] = mem2 = mem1; // rand();
     *(int *)mem1 = mem2;
     printf("Write: 0x%x,%d", mem1, mem2);
   }

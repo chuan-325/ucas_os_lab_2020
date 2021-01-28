@@ -1,7 +1,8 @@
-/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
- *            Copyright (C) 2018 Institute of Computing Technology, CAS
- *               Author : Han Shukai (email : hanshukai@ict.ac.cn)
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * *
+/* * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * *
+ * * * * * * Copyright (C) 2018 Institute of Computing Technology, CAS Author :
+ * Han Shukai (email : hanshukai@ict.ac.cn)
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * *
+ * * * * * *
  *
  * Permission is hereby granted, free of charge, to any person obtaining a copy
  * of this software and associated documentation files (the "Software"), to deal
@@ -21,13 +22,14 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  *
- * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * * * * * * */
+ * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * *  * * * * * *
+ * * * * * */
 
 #ifndef INCLUDE_TEST_H_
 #define INCLUDE_TEST_H_
 
-#define P3_TEST
-//#define P4_TEST
+//#define P3_TEST
+#define P4_TEST
 //#define P5_TEST
 //#define P6_TEST
 
@@ -49,7 +51,7 @@
 void test_shell(void);
 
 extern struct task_info shell_task;
-extern struct task_info *shell_tasks[16];
+extern struct task_info *shell_tasks[NUM_MAX_TASK];
 extern int num_shell_tasks;
 
 #endif

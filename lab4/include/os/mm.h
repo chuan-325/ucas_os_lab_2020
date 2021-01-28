@@ -3,7 +3,6 @@
 #include "sched.h"
 #include "type.h"
 
-// TODO: lab4
 #define PT_SIZE 0x100
 
 typedef struct pte {

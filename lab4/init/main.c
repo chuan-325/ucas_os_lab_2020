@@ -66,7 +66,7 @@ static void init_pcb() {
   pcb[0].next = &pcb[1];
   queue_init(&(pcb[0].lock_queue));
   queue_init(&(pcb[0].wait_queue));
-  set_pcb(0, &pcb[0], &task0);
+  set_pcb(0, &pcb[0], &task0, 0);
   queue_push(&ready_queue, &pcb[0]);
 
   pcb[0].cursor_x = SHELL_LEFT_LOC;
@@ -151,19 +151,19 @@ static void init_syscall(void) {
 }
 
 static void init_tlb_entry(void) {
-  int i;
+  uint64_t i;
   for (i = 0; i < 64; i++) {
     uint64_t enhi = (i << 13); // |(asid&0xff)
-    uint64_t dpfn = i + 0x20000;
+    uint64_t dpfn = (i << 1) + 0x8000;
     uint64_t enl0 =
         (dpfn << 6) | (2 << 3) | (1 << 2) | (1 << 1) | (1); // d-pfn/c/d/v/g
-    uint64_t enl1 =
-        (dpfn << 6) | (2 << 3) | (1 << 2) | (1 << 1) | (1); // d-pfn/c/d/v/g
+    uint64_t enl1 = enl0 | (1 << 6);                        // d-pfn/c/d/v/g
     set_cp0_entryhi(enhi);
     set_cp0_entrylo0(enl0);
     set_cp0_entrylo1(enl1);
     set_cp0_pagemask(0);
     set_cp0_index(i);
+    tlbwi_operation();
   }
 }
 

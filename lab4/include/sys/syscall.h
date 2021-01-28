@@ -101,7 +101,7 @@ uint64_t (*syscall[NUM_SYSCALLS])();
 void system_call_helper(uint64_t, uint64_t, uint64_t, uint64_t);
 extern uint64_t invoke_syscall(uint64_t, uint64_t, uint64_t, uint64_t);
 
-int sys_spawn(task_info_t *info);
+int sys_spawn(task_info_t *info, uint64_t para);
 void sys_exit(void);
 void sys_sleep(uint32_t);
 int sys_kill(pid_t);

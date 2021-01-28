@@ -38,8 +38,6 @@
 
 #ifdef P3_TEST
 
-struct task_info task0;
-
 struct task_info task1 = {"task1", (uint64_t)&ready_to_exit_task, USER_PROCESS,
                           1};
 struct task_info task2 = {"task2", (uint64_t)&wait_lock_task, USER_PROCESS, 1};
@@ -64,9 +62,18 @@ struct task_info task13 = {"SunQuan", (uint64_t)&SunQuan, USER_PROCESS, 1};
 struct task_info task14 = {"LiuBei", (uint64_t)&LiuBei, USER_PROCESS, 1};
 struct task_info task15 = {"CaoCao", (uint64_t)&CaoCao, USER_PROCESS, 1};
 
+struct task_info task16 = {"multicore", (uint64_t)&test_multicore, USER_PROCESS,
+                           1};
+#endif
+
 #ifdef P4_TEST
+
 struct task_info task16 = {"mem_test1", (uint64_t)&rw_task1, USER_PROCESS, 1};
 struct task_info task17 = {"plan", (uint64_t)&drawing_task1, USER_PROCESS, 1};
+static struct task_info *test_tasks[NUM_MAX_TASK] = {&task16, &task16, &task17};
+
+char in_argv[RW_TIMES * 2 + 2][10];
+
 #endif
 
 #ifdef P5_TEST
@@ -80,22 +87,24 @@ struct task_info task19 = {"mac_recv", (uint64_t)&mac_recv_task, USER_PROCESS,
 
 struct task_info task19 = {"fs_test", (uint64_t)&test_fs, USER_PROCESS, 1};
 #endif
-struct task_info task16 = {"multicore", (uint64_t)&test_multicore, USER_PROCESS,
-                           1};
+/*
+struct task_info task1, task2, task3, task4, task5, task6, task7, task8, task9,
+    task10, task11, task12, task13, task14, task15;
 static struct task_info *test_tasks[NUM_MAX_TASK] = {
-    &task0,  &task1,  &task2,  &task3,  &task4,  &task5,
-    &task6,  &task7,  &task8,  &task9,  &task10, &task11,
-    &task12, &task13, &task14, &task15, &task16};
-
-#endif
-
-char *command_boundary = "> -------------- COMMAND --------------";
+    &task1,  &task2,  &task3,  &task4,  &task5,  &task6,
+    &task7,  &task8,  &task9,  &task10, &task11, &task12, &task13,
+    &task14, &task15, &task16, &task17, &task18, &task19};
+*/
+char *command_boundary =
+    "> -------------- COMMAND --------------                     ";
 char *user_name = "> ROOT@UCAS_OS$ ";
 
 void hint_print() {
   pcb[0].cursor_x = SHELL_LEFT_LOC;
   sys_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
-  printf("[INFO] Input format: [ps/clear] | [exec/wait/kill] <task_num> ");
+  printf(
+      "[INFO] Input format: [ps/clear] | [exec/wait/kill] <task_num>         ");
+  pcb[0].cursor_y++;
 }
 
 int get_num(char in_buf[]) {
@@ -115,7 +124,6 @@ int get_num(char in_buf[]) {
 }
 
 void test_shell() {
-  // TODO ok
 
   sys_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
   printf("%s", command_boundary); // show boundary
@@ -159,9 +167,10 @@ void test_shell() {
         pcb[0].cursor_x = SHELL_LEFT_LOC;
         sys_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
         if (has_killed == 0)
-          printf("PROCESS (pid=%d) has been KILLED.", be_kill);
+          printf("PROCESS (pid=%d) has been KILLED.                         ",
+                 be_kill);
         else if (has_killed == -1)
-          printf("PROCESS NOT EXISTED.");
+          printf("PROCESS NOT EXISTED.                                      ");
 
         pcb[0].cursor_y++;
       } else if (memcmp(in_buf, "wait", 4) == 0) { // wait
@@ -171,25 +180,46 @@ void test_shell() {
         pcb[0].cursor_x = SHELL_LEFT_LOC;
         if (has_waited == -1) {
           sys_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
-          printf("PROCESS %d NOT EXISTED.", wait_who);
+          printf("PROCESS %d NOT EXISTED.                        ", wait_who);
         }
 
         pcb[0].cursor_y++;
       } else if (memcmp(in_buf, "exec", 4) == 0) { // exec
-        int be_exec = get_num(in_buf);
+
+        uint64_t flag_para = 0; // if task has no para,  = 0
+
+        // parse input virtual addr
+        int index, li = 0, lj = 0;
+        for (index = 0; index <= strlen(in_buf); index++) {
+          if (in_buf[index] == ' ') {
+            in_argv[li++][lj] = '\0';
+            lj = 0;
+          } else {
+            in_argv[li][lj++] = in_buf[index];
+          }
+        }
+        if (li >= 2)
+          flag_para = (uint64_t)(in_argv);
+
+        int be_exec = str_toi(in_argv[1]);
 
         int has_exec;
         if (be_exec > 0 && be_exec < 16)
-          has_exec = sys_spawn(test_tasks[be_exec]);
+          has_exec = sys_spawn(test_tasks[be_exec], flag_para);
         else
           has_exec = -1; // invalid task
 
         pcb[0].cursor_x = SHELL_LEFT_LOC;
         sys_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
         if (has_exec == -1) {
-          printf("Task %d EXEC FAILED/NOT EXISTED.", be_exec);
+          if (be_exec == 0)
+            hint_print();
+          else
+            printf("Task %d EXEC FAILED/NOT EXISTED.                     ",
+                   be_exec);
         } else {
-          printf("Task %d EXEC SUCCESS.", be_exec);
+          printf("Task %d EXEC SUCCESS.                                  ",
+                 be_exec);
         }
 
         pcb[0].cursor_y++;
