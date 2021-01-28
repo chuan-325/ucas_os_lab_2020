@@ -37,6 +37,8 @@
 #define NUM_MAX_TASK 32
 #define CORE_NUM 2
 
+#define PTE_BASE_ADDR 0xffffffffa0ffd000
+
 #define ADDR_KNSTACK_BASE 0xffffffffa0f00000
 #define ADDR_USSTACK_BASE 0xffffffffa0f20000
 #define NUM_KERNEL_STACK 20

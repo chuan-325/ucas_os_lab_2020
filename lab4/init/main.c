@@ -150,23 +150,6 @@ static void init_syscall(void) {
   syscall[SYSCALL_BINSEM_OP] = (uint64_t(*)())(&do_binsemop);
 }
 
-static void init_tlb_entry(void) {
-  uint64_t i;
-  for (i = 0; i < 64; i++) {
-    uint64_t enhi = (i << 13); // |(asid&0xff)
-    uint64_t dpfn = (i << 1) + 0x8000;
-    uint64_t enl0 =
-        (dpfn << 6) | (2 << 3) | (1 << 2) | (1 << 1) | (1); // d-pfn/c/d/v/g
-    uint64_t enl1 = enl0 | (1 << 6);                        // d-pfn/c/d/v/g
-    set_cp0_entryhi(enhi);
-    set_cp0_entrylo0(enl0);
-    set_cp0_entrylo1(enl1);
-    set_cp0_pagemask(0);
-    set_cp0_index(i);
-    tlbwi_operation();
-  }
-}
-
 /* [0] The beginning of everything */
 void __attribute__((section(".entry_function"))) _start(void) {
 
