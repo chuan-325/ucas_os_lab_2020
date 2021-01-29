@@ -217,7 +217,6 @@ void do_sleep(uint32_t sleep_time) {
 }
 
 void do_exit(void) {
-  // TODO ok
   pcb_t *to_exit;
   to_exit = current_running;
   queue_remove(&ready_queue, current_running);
@@ -238,7 +237,6 @@ void do_exit(void) {
 }
 
 int do_kill(pid_t pid) {
-  // TODO ok
   int i, flag;
   flag = 0;
   for (i = 0; i < NUM_MAX_TASK; i++) {
@@ -274,7 +272,6 @@ int do_kill(pid_t pid) {
 }
 
 int do_waitpid(pid_t pid) {
-  // TODO ok
   int i, find;
   find = 0;
   for (i = 0; i < NUM_MAX_TASK; i++)
@@ -292,7 +289,6 @@ int do_waitpid(pid_t pid) {
 
 // process show
 void do_process_show() {
-  // TODO ok
   // pcb[0].cursor_x = SHELL_LEFT_LOC;
   vt100_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
   printk("[PROC TABLE]");
@@ -320,10 +316,7 @@ void do_process_show() {
   screen_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
 }
 
-pid_t do_getpid() {
-  // TODO ok
-  return current_running->pid;
-}
+pid_t do_getpid() { return current_running->pid; }
 
 // which to switch? sequence sched
 /*

@@ -70,7 +70,7 @@ struct task_info task16 = {"multicore", (uint64_t)&test_multicore, USER_PROCESS,
 
 struct task_info task16 = {"mem_test1", (uint64_t)&rw_task1, USER_PROCESS, 1};
 struct task_info task17 = {"plan", (uint64_t)&drawing_task1, USER_PROCESS, 1};
-static struct task_info *test_tasks[NUM_MAX_TASK] = {&task16, &task16, &task17};
+static struct task_info *test_tasks[NUM_MAX_TASK] = {0, &task16, &task17, 0};
 
 char in_argv[RW_TIMES * 2 + 2][10];
 
@@ -101,7 +101,7 @@ char *user_name = "> ROOT@UCAS_OS$ ";
 
 void hint_print() {
   pcb[0].cursor_x = SHELL_LEFT_LOC;
-  sys_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+  sys_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
   printf(
       "[INFO] Input format: [ps/clear] | [exec/wait/kill] <task_num>         ");
   pcb[0].cursor_y++;
@@ -203,18 +203,17 @@ void test_shell() {
 
         int be_exec = str_toi(in_argv[1]);
 
-        int has_exec;
+        int has_exec = -1; // invalid task
         if (be_exec > 0 && be_exec < 16)
-          has_exec = sys_spawn(test_tasks[be_exec], flag_para);
-        else
-          has_exec = -1; // invalid task
+          if (test_tasks[be_exec]->name)
+            has_exec = sys_spawn(test_tasks[be_exec], flag_para);
 
         pcb[0].cursor_x = SHELL_LEFT_LOC;
-        sys_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
+        sys_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
         if (has_exec == -1) {
-          if (be_exec == 0)
+          if (be_exec == 0) {
             hint_print();
-          else
+          } else
             printf("Task %d EXEC FAILED/NOT EXISTED.                     ",
                    be_exec);
         } else {
@@ -226,6 +225,7 @@ void test_shell() {
       } else { // error
         printf("%c", in);
         pcb[0].cursor_x = SHELL_LEFT_LOC;
+        pcb[0].cursor_y++;
         hint_print();
       }
 
