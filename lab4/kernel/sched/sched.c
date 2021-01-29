@@ -255,7 +255,7 @@ int do_kill(pid_t pid) {
   if (to_kill->status == TASK_BLOCKED)
     queue_remove((queue_t *)(to_kill->block_me), to_kill);
   else
-    queue_remove(&ready_queue, current_running);
+    queue_remove(&ready_queue, to_kill);
 
   // lock blocked
   while (!queue_is_empty(&(to_kill->lock_queue))) {
