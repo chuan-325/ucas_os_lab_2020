@@ -209,9 +209,10 @@ void test_shell() {
             has_exec = sys_spawn(test_tasks[be_exec], flag_para);
 
         pcb[0].cursor_x = SHELL_LEFT_LOC;
-        sys_move_cursor(pcb[0].cursor_x, ++pcb[0].cursor_y);
+        sys_move_cursor(pcb[0].cursor_x, pcb[0].cursor_y);
         if (has_exec == -1) {
           if (be_exec == 0) {
+            pcb[0].cursor_y++;
             hint_print();
           } else
             printf("Task %d EXEC FAILED/NOT EXISTED.                     ",
