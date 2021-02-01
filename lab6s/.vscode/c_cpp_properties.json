@@ -12,7 +12,8 @@
                 "${workspaceFolder}/libs",
                 "${workspaceFolder}/test",
                 "${workspaceFolder}/test/test_project3",
-                "${workspaceFolder}/test/test_project4"
+                "${workspaceFolder}/test/test_project4",
+                "${workspaceFolder}/test/test_project6"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/gcc",
